@@ -1,3 +1,7 @@
+# local venvs
+University/ENM518/enm518
+University/ENM524/enm524
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
