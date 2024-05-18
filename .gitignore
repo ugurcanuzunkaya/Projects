@@ -2,6 +2,11 @@
 University/ENM518/enm518
 University/ENM524/enm524
 
+# Big files
+University/ENM518/project/dataset_with_features.csv
+University/ENM518/project/bank_transactions.csv
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
