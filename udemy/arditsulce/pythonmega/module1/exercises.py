@@ -136,3 +136,20 @@ def coding_exercise_14_3(unit_test=False):
         assert temperature_state(30) == "Hot"
 
 
+def coding_exercise_15_1(unit_test=False):
+    def random_number(lower_bound, upper_bound):
+        import random
+        return random.randint(lower_bound, upper_bound)
+    
+    # Test the function
+    print(random_number(1, 10))
+
+    if unit_test:
+        # Unit tests
+        for _ in range(10):
+            assert 1 <= random_number(1, 10) <= 10
+            assert 1 <= random_number(1, 100) <= 100
+            assert 1 <= random_number(1, 1000) <= 1000
+
+
+

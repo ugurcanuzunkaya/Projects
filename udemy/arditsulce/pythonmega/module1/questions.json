@@ -1,0 +1,52 @@
+[
+    {
+        "question_text": "What are dolphins?",
+        "alternatives": [
+            "Fish",
+            "Mammals",
+            "Birds",
+            "Reptiles"
+        ],
+        "correct_answer": 2
+    },
+    {
+        "question_text": "What is the capital of France?",
+        "alternatives": [
+            "London",
+            "Paris",
+            "Berlin",
+            "Madrid"
+        ],
+        "correct_answer": 2
+    },
+    {
+        "question_text": "What is the capital of Spain?",
+        "alternatives": [
+            "London",
+            "Paris",
+            "Berlin",
+            "Madrid"
+        ],
+        "correct_answer": 4
+    },
+    {
+        "question_text": "What is the capital of Germany?",
+        "alternatives": [
+            "London",
+            "Paris",
+            "Berlin",
+            "Madrid"
+        ],
+        "correct_answer": 3
+    },
+    {
+        "question_text": "What is the capital of England?",
+        "alternatives": [
+            "London",
+            "Paris",
+            "Berlin",
+            "Madrid"
+        ],
+        "correct_answer": 1
+    }
+]
