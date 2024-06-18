@@ -1,5 +1,15 @@
 def coding_exercise_13_1(unit_test=False):
-    def get_age(year_of_birth, current_year = 2024):
+    def get_age(year_of_birth: int, current_year:int = 2024) -> int:
+        """
+        Calculate the age based on the year of birth and the current year.
+
+        Args:
+            year_of_birth (int): The year of birth.
+            current_year (int): The current year. Default is 2024.
+
+        Returns:
+            int: The age of the person.
+        """
         return current_year - year_of_birth
 
     # Test the function
@@ -13,7 +23,16 @@ def coding_exercise_13_1(unit_test=False):
 
 
 def coding_exercise_13_2(unit_test=False):
-    def get_nr_items(string):
+    def get_nr_items(string: str) -> int:
+        """
+        Count the number of items in a string separated by commas.
+
+        Args:
+            string (str): The string to be checked.
+
+        Returns:
+            int: The number of items in the string.
+        """
         return len(string.split(","))
 
     # Test the function
@@ -27,7 +46,16 @@ def coding_exercise_13_2(unit_test=False):
 
 
 def coding_exercise_13_3(unit_test=False):
-    def area_of_square(side_length):
+    def area_of_square(side_length: float) -> float:
+        """
+        Calculate the area of a square.
+
+        Args:
+            side_length (float): The side length of the square.
+
+        Returns:
+            int/float: The area of the square.
+        """
         return side_length ** 2
 
     # Test the function
@@ -41,7 +69,16 @@ def coding_exercise_13_3(unit_test=False):
 
 
 def coding_exercise_13_4(unit_test=False):
-    def weather_condition(temperature):
+    def weather_condition(temperature: float) -> str:
+        """
+        Determine the weather condition based on the temperature.
+
+        Args:
+            temperature (float): The temperature to be checked.
+
+        Returns:
+            str: The weather condition. "Warm" if temperature > 7, "Cold" otherwise.
+        """
         return "Warm" if temperature > 7 else "Cold"
 
     # Test the function
@@ -55,12 +92,18 @@ def coding_exercise_13_4(unit_test=False):
 
 
 def coding_exercise_13_5(unit_test=False):
-    def length_of_string(string):
-        if len(string) < 8:
-            return False
+    def length_of_string(string: str) -> bool:
+        """
+        Check if the length of the string is greater than or equal to 8.
 
-        return True
-    
+        Args:
+            string (str): The string to be checked.
+
+        Returns:
+            bool: True if the length of the string is greater than or equal to 8, False otherwise.
+        """
+        return len(string) >= 8
+
     # Test the function
     print(length_of_string("hello"))
 
@@ -73,7 +116,16 @@ def coding_exercise_13_5(unit_test=False):
 
 
 def coding_exercise_14_1(unit_test=False):
-    def water_state(temperature):
+    def water_state(temperature: float) -> str:
+        """
+        Determine the state of water based on the temperature.
+
+        Args:
+            temperature (float): The temperature of the water (in Celsius).
+
+        Returns:
+            str: The state of the water. "Solid" if temperature <= 0, "Liquid" if temperature < 100, and "Gas" otherwise.
+        """
         if temperature <= 0:
             return "Solid"
         elif temperature < 100:
@@ -92,7 +144,16 @@ def coding_exercise_14_1(unit_test=False):
 
 
 def coding_exercise_14_2(unit_test=False):
-    def water_state(temperature):
+    def water_state(temperature: float) -> str:
+        """
+        Determine the state of water based on the temperature.
+
+        Args:
+            temperature (float): The temperature of the water (in Celsius).
+
+        Returns:
+            str: The state of the water. "Solid" if temperature <= 0, "Liquid" if temperature < 100, and "Gas" otherwise.
+        """
         FREEZING_POINT = 0
         BOILING_POINT = 100
 
@@ -117,7 +178,16 @@ def coding_exercise_14_2(unit_test=False):
 
 
 def coding_exercise_14_3(unit_test=False):
-    def temperature_state(temperature):
+    def temperature_state(temperature: float) -> str:
+        """
+        Determine the state of the temperature.
+
+        Args:
+            temperature (float): The temperature to be checked.
+
+        Returns:
+            str: The state of the temperature. "Hot" if temperature > 25, "Warm" if temperature >= 15, and "Cold" otherwise.
+        """
         if temperature > 25:
             return "Hot"
         elif temperature >= 15:
@@ -137,7 +207,17 @@ def coding_exercise_14_3(unit_test=False):
 
 
 def coding_exercise_15_1(unit_test=False):
-    def random_number(lower_bound, upper_bound):
+    def random_number(lower_bound:int, upper_bound: int) -> int:
+        """
+        Generate a random number between lower_bound and upper_bound.
+
+        Args:
+            lower_bound (int): The lower bound of the random number.
+            upper_bound (int): The upper bound of the random number.
+
+        Returns:
+            int: A random number between lower_bound and upper_bound.
+        """
         import random
         return random.randint(lower_bound, upper_bound)
     
@@ -153,3 +233,61 @@ def coding_exercise_15_1(unit_test=False):
 
 
 
+def coding_exercise_17_1(unit_test=False):
+    def ounces2milimeters(ounces: float) -> float:
+        """
+        Convert ounces to milimeters.
+
+        Args:
+            ounces (float): The number of ounces to be converted.
+
+        Returns:
+            float: The number of milimeters after conversion. Precision is 4 decimal places.
+        """
+        return round((ounces * 29.57353), 4)
+    
+    # Test the function
+    print(ounces2milimeters(5))
+
+    if unit_test:
+        # Unit tests
+        assert ounces2milimeters(5) == 147.8675
+        assert ounces2milimeters(10) == 295.735
+        assert ounces2milimeters(15) == 443.6025
+
+
+
+if __name__ == "__main__":
+    input_day = int(input("Enter the day of the function: "))
+    input_exercise = int(input("Enter the exercise number: "))
+    input_unit_test = input("Do you want to run the unit tests? (y/n): ")
+
+    unit_test = input_unit_test.lower() == "y"
+
+    if input_day == 13:
+        if input_exercise == 1:
+            coding_exercise_13_1(unit_test)
+        elif input_exercise == 2:
+            coding_exercise_13_2(unit_test)
+        elif input_exercise == 3:
+            coding_exercise_13_3(unit_test)
+        elif input_exercise == 4:
+            coding_exercise_13_4(unit_test)
+        elif input_exercise == 5:
+            coding_exercise_13_5(unit_test)
+
+    elif input_day == 14:
+        if input_exercise == 1:
+            coding_exercise_14_1(unit_test)
+        elif input_exercise == 2:
+            coding_exercise_14_2(unit_test)
+        elif input_exercise == 3:
+            coding_exercise_14_3(unit_test)
+
+    elif input_day == 15:
+        if input_exercise == 1:
+            coding_exercise_15_1(unit_test)
+
+    elif input_day == 17:
+        if input_exercise == 1:
+            coding_exercise_17_1(unit_test)

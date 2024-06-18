@@ -12,17 +12,16 @@ def file_operations(filename, listname, operation):
     If 'r', it's the list populated with the contents of the file.
     """
     if operation == "w":
-        with open(filename, "w") as file:
-            for counter, item in enumerate(listname):
-                file.write(f"{counter + 1} - {item}\n")
+        with open(f"./udemy/arditsulce/pythonmega/module1/project/{filename}.txt", "w") as file:
+            for item in listname:
+                file.write(f"{item}\n")
                 
     elif operation == "r":
         listname.clear()
-        with open(filename, "r") as file:
+        with open(f"./udemy/arditsulce/pythonmega/module1/project/{filename}.txt", "r") as file:
             for line in file:
                 line = line.rstrip("\n")
                 listname.append(line)
-                print(line)
 
     return listname
 
