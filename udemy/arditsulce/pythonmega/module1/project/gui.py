@@ -1,4 +1,4 @@
-import FreeSimpleGUI as fsg
+import PySimpleGUI as fsg
 import functions
 import time
 import os

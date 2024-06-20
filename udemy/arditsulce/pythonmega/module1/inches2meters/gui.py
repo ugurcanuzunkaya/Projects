@@ -1,5 +1,5 @@
 # Inches to Meters Converter with GUI
-import FreeSimpleGUI as fsg
+import PySimpleGUI as fsg
 
 label1 = fsg.Text("Enter feet:")
 input_box1 = fsg.InputText(key="feet")

@@ -1,5 +1,5 @@
 from calendar import c
-import FreeSimpleGUI as fsg
+import PySimpleGUI as fsg
 from zipextractor import extract_archive, change_dir_to_this_file
 
 label1 = fsg.Text("Select archive")

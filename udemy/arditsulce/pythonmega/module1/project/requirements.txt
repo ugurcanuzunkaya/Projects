@@ -9,7 +9,7 @@ click==8.1.7
 contourpy @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_041uwyxdzo/croot/contourpy_1700583585236/work
 cycler @ file:///tmp/build/80754af9/cycler_1637851556182/work
 fonttools @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_60c8ux4mkl/croot/fonttools_1713551354374/work
-FreeSimpleGUI==5.1.0
+PySimpleGUI==5.1.0
 gitdb==4.0.11
 GitPython==3.1.43
 idna==3.7

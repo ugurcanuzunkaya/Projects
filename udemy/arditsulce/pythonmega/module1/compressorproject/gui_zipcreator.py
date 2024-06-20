@@ -1,4 +1,4 @@
-import FreeSimpleGUI as fsg
+import PySimpleGUI as fsg
 from zipcreator import make_archive, change_dir_to_this_file
 
 label1 = fsg.Text("Select files to compress:")
