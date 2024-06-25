@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+  labels:
+    app: nginx
+    environment: test
+spec:
+  containers:
+  - name: my-container
+    image: nginx:latest
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "0.5"
+        memory: "256Mi"
+    ports:
+    - containerPort: 80
+    env:
+    - name: ENV_VAR
+      value: "value"
+    volumeMounts:
+    - name: my-volume
+      mountPath: /path/in/container
+  volumes:
+  - name: my-volume
+    emptyDir: {}
+  restartPolicy: Always
+  dnsPolicy: ClusterFirst
+  nodeSelector:
+    disktype: ssd
+  tolerations:
+  - key: "key"
+    operator: "Equal"
+    value: "value"
+    effect: "NoSchedule"
