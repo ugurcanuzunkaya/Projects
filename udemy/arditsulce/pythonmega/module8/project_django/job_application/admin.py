@@ -10,7 +10,6 @@ class FormAdmin(admin.ModelAdmin):
     readonly_fields = ("occupation", )
 
 
-
 admin.site.register(Form, FormAdmin)
 
 
