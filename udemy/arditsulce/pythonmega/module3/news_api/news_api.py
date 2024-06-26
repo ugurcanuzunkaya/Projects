@@ -2,7 +2,7 @@ import requests
 import os
 import pathlib
 import json
-import send_email
+from send_email import send_email
 
 
 def change_dir_to_this_file():
@@ -15,7 +15,7 @@ def change_dir_to_this_file():
 change_dir_to_this_file()
 
 
-topic = 'tesla'
+topic = input('Enter a topic: ')
 api_key = os.getenv('NEWSAPI_KEY')
 url = f'https://newsapi.org/v2/everything?{topic}q=&from=2024-05-20&sortBy=publishedAt&apiKey={api_key}&language=en'
 
@@ -47,4 +47,4 @@ for article in content['articles']:
     mail_body += '\n\n'
 
 mail_body = mail_body.encode('utf-8')
-send_email.send_email_test(email="ugurcanuzunkaya1@gmail.com", subject="Tesla News", message=mail_body)
+send_email(email=os.getenv('RECEIVER_MAIL'), subject='Today\'s News', message=mail_body)

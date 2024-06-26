@@ -1,4 +1,4 @@
-import PySimpleGUI as fsg
+import PySimpleGUI as psg
 import functions
 import time
 import os
@@ -8,20 +8,20 @@ if not os.path.exists("todos.txt"):
         file.write("")
 
 
-fsg.theme("DarkAmber")
+psg.theme("DarkAmber")
 
-clock = fsg.Text("", key="clock")
+clock = psg.Text("", key="clock")
 
-label = fsg.Text("Type in a to-do item")
-input_box = fsg.InputText(tooltip="Enter todo", key="todo")
-add_button = fsg.Button("Add")
+label = psg.Text("Type in a to-do item")
+input_box = psg.InputText(tooltip="Enter todo", key="todo")
+add_button = psg.Button("Add")
 
-list_box = fsg.Listbox(values=functions.file_operations(filename="todos", listname=[], operation="r"),
+list_box = psg.Listbox(values=functions.file_operations(filename="todos", listname=[], operation="r"),
                         key="todos", enable_events=True, size=(40, 10))
 
-edit_button = fsg.Button("Edit")
-complete_button = fsg.Button("Complete")
-exit_button = fsg.Button("Exit")
+edit_button = psg.Button("Edit")
+complete_button = psg.Button("Complete")
+exit_button = psg.Button("Exit")
 
 layout = [[clock],
         [label], 
@@ -30,7 +30,7 @@ layout = [[clock],
         [exit_button]
         ]
 
-window = fsg.Window("To-Do List", 
+window = psg.Window("To-Do List", 
                     layout=layout,
                     font=("Helvetica", 20))
 
@@ -61,7 +61,7 @@ while True:
                 window["todos"].update(values=todos)
             
             except IndexError:
-                fsg.popup("Select a to-do item to edit")
+                psg.popup("Select a to-do item to edit")
 
         case "Complete":
             todo_to_complete = values["todos"][0]
@@ -76,5 +76,5 @@ while True:
         case "todos":
             window["todo"].update(value=values["todos"][0])
             
-        case "Exit", fsg.WIN_CLOSED:
+        case "Exit", psg.WIN_CLOSED:
             break

@@ -3,7 +3,7 @@ import ssl
 import os
 
 
-def send_email_test(email, subject, message):
+def send_email(email, subject, message):
     host = "smtp.gmail.com"
     port = 465
 
