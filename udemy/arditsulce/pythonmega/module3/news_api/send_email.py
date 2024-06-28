@@ -18,4 +18,3 @@ def send_email(email, subject, message):
     with smtplib.SMTP_SSL(host, port, context=context) as server:
         server.login(username, password)
         server.sendmail(username, receiver, f"Subject: {subject}\n\n{message}")
-

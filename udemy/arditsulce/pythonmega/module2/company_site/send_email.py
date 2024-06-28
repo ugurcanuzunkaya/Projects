@@ -22,10 +22,9 @@ def send_email(message):
     receiver = os.environ.get("RECEIVER_MAIL")
     context = ssl.create_default_context()
 
-
     with smtplib.SMTP_SSL(host, port, context=context) as server:
         server.login(username, password)
-        
+
         server.sendmail(username, receiver, message)
 
 

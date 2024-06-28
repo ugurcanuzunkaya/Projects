@@ -1,14 +1,23 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Best Company", page_icon="🚀", layout="wide", initial_sidebar_state="auto")
+st.set_page_config(
+    page_title="Best Company",
+    page_icon="🚀",
+    layout="wide",
+    initial_sidebar_state="auto",
+)
 
 st.write("# Welcome to Best Company! 🚀")
 
 st.write("## Our Mission")
-st.write("Our mission is to provide the best services to our customers. We believe in quality and customer satisfaction. We are here to help you with all your needs.")
+st.write(
+    "Our mission is to provide the best services to our customers. We believe in quality and customer satisfaction. We are here to help you with all your needs."
+)
 st.write("## Our Vision")
-st.write("Our vision is to become the best company in the world. We aim to provide the best products and services to our customers. We are committed to excellence and innovation.")
+st.write(
+    "Our vision is to become the best company in the world. We aim to provide the best products and services to our customers. We are committed to excellence and innovation."
+)
 
 st.write("---")
 

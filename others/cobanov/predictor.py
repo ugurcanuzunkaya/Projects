@@ -44,4 +44,6 @@ class DepthEstimationModel:
 
 
 model = DepthEstimationModel()
-model.calculate_depthmap("others/cobanov/test_image.png", "Others/Cobanov/depth_map.png")
+model.calculate_depthmap(
+    "others/cobanov/test_image.png", "Others/Cobanov/depth_map.png"
+)

@@ -11,8 +11,8 @@ def change_dir_to_this_file():
     if cwd != path_of_this_file:
         os.chdir(path_of_this_file)
 
-    if not os.path.exists('todos'):
-        with open('todos', 'w') as f:
+    if not os.path.exists("todos"):
+        with open("todos", "w") as f:
             f.write("")
 
 
@@ -24,21 +24,20 @@ def add_todo():
     if st.session_state.add_todo in todos:
         st.write("To-Do item already exists.")
         return
-    
+
     todos.append(st.session_state.add_todo)
-    functions.file_operations(filename='todos', listname=todos, operation="w")
+    functions.file_operations(filename="todos", listname=todos, operation="w")
     st.write("New To-Do item added successfully!")
 
 
 def clear_all_todos():
     todos.clear()
-    functions.file_operations(filename='todos', listname=todos, operation="w")
+    functions.file_operations(filename="todos", listname=todos, operation="w")
     st.write("All To-Do items cleared successfully!")
 
 
-
 change_dir_to_this_file()
-todos = functions.file_operations(filename='todos', listname=[], operation="r")
+todos = functions.file_operations(filename="todos", listname=[], operation="r")
 st.set_page_config(layout="wide", page_title="To-Do List App")
 
 st.title("To-Do List")
@@ -53,10 +52,9 @@ st.button("Clear All", on_click=clear_all_todos)
 for todo in todos:
     if checkbox := st.checkbox(todo, key=str(todo)):
         todos.remove(todo)
-        functions.file_operations(filename='todos', listname=todos, operation="w")
+        functions.file_operations(filename="todos", listname=todos, operation="w")
         del st.session_state.add_todo
         st.experimental_rerun()
 
 
 st.write("Thank you for using the To-Do List App!")
-

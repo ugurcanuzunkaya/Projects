@@ -9,6 +9,7 @@ import os
 def welcomepage(request):
     return render(request, "welcomepage.html")
 
+
 def application(request):
     if request.method == "POST":
         form = ApplicationForm(request.POST)

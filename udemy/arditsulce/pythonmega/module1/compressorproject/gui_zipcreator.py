@@ -12,19 +12,24 @@ choose_button2 = psg.FolderBrowse("Choose", key="folder")
 compress_button = psg.Button("Compress")
 output_label = psg.Text(key="output")
 
-window = psg.Window("Compressor", layout=[[label1, input_box1, choose_button1], 
-                                        [label2, input_box2, choose_button2], 
-                                        [compress_button, output_label]])
+window = psg.Window(
+    "Compressor",
+    layout=[
+        [label1, input_box1, choose_button1],
+        [label2, input_box2, choose_button2],
+        [compress_button, output_label],
+    ],
+)
 
 while True:
     event, values = window.read()
     if event == "Compress":
         filepaths = values["files"].split(";")
         folder = values["folder"]
-        
+
         change_dir_to_this_file()
         make_archive(filepaths=filepaths, dest_dir=folder)
-        
+
         window["output"].update("Compression completed!")
 
     elif event == psg.WIN_CLOSED:

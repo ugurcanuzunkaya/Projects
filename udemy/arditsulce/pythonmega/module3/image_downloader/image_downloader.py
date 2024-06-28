@@ -2,6 +2,7 @@ import requests
 import os
 import pathlib
 
+
 def change_dir_to_this_file():
     # getting the current working directory
     cwd = os.getcwd()
@@ -9,10 +10,13 @@ def change_dir_to_this_file():
     if cwd != path_of_this_file:
         os.chdir(path_of_this_file)
 
+
 change_dir_to_this_file()
 
 # URL of the image to be downloaded
-hardcoded_or_not = input("Do you want to enter the URL of the image to be downloaded? (y/n): ")
+hardcoded_or_not = input(
+    "Do you want to enter the URL of the image to be downloaded? (y/n): "
+)
 if hardcoded_or_not == "y":
     url = input("Enter the URL of the image to be downloaded: ")
 elif hardcoded_or_not == "n":

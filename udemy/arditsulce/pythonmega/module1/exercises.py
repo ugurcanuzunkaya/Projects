@@ -1,5 +1,5 @@
 def coding_exercise_13_1(unit_test=False):
-    def get_age(year_of_birth: int, current_year:int = 2024) -> int:
+    def get_age(year_of_birth: int, current_year: int = 2024) -> int:
         """
         Calculate the age based on the year of birth and the current year.
 
@@ -56,7 +56,7 @@ def coding_exercise_13_3(unit_test=False):
         Returns:
             int/float: The area of the square.
         """
-        return side_length ** 2
+        return side_length**2
 
     # Test the function
     print(area_of_square(5))
@@ -88,7 +88,7 @@ def coding_exercise_13_4(unit_test=False):
         # Unit tests
         assert weather_condition(5) == "Cold"
         assert weather_condition(10) == "Warm"
-        assert weather_condition(15) == "Warm" 
+        assert weather_condition(15) == "Warm"
 
 
 def coding_exercise_13_5(unit_test=False):
@@ -112,7 +112,6 @@ def coding_exercise_13_5(unit_test=False):
         assert length_of_string("hello") == False
         assert length_of_string("hello world") == True
         assert length_of_string("hello world!") == True
-    
 
 
 def coding_exercise_14_1(unit_test=False):
@@ -132,7 +131,7 @@ def coding_exercise_14_1(unit_test=False):
             return "Liquid"
         else:
             return "Gas"
-    
+
     # Test the function
     print(water_state(50))
 
@@ -159,14 +158,13 @@ def coding_exercise_14_2(unit_test=False):
 
         if temperature <= FREEZING_POINT:
             return "Solid"
-        
+
         elif temperature < BOILING_POINT:
             return "Liquid"
-    
+
         else:
             return "Gas"
 
-    
     # Test the function
     print(water_state(50))
 
@@ -194,7 +192,7 @@ def coding_exercise_14_3(unit_test=False):
             return "Warm"
         else:
             return "Cold"
-    
+
     # Test the function
     print(temperature_state(10))
 
@@ -207,7 +205,7 @@ def coding_exercise_14_3(unit_test=False):
 
 
 def coding_exercise_15_1(unit_test=False):
-    def random_number(lower_bound:int, upper_bound: int) -> int:
+    def random_number(lower_bound: int, upper_bound: int) -> int:
         """
         Generate a random number between lower_bound and upper_bound.
 
@@ -219,8 +217,9 @@ def coding_exercise_15_1(unit_test=False):
             int: A random number between lower_bound and upper_bound.
         """
         import random
+
         return random.randint(lower_bound, upper_bound)
-    
+
     # Test the function
     print(random_number(1, 10))
 
@@ -230,7 +229,6 @@ def coding_exercise_15_1(unit_test=False):
             assert 1 <= random_number(1, 10) <= 10
             assert 1 <= random_number(1, 100) <= 100
             assert 1 <= random_number(1, 1000) <= 1000
-
 
 
 def coding_exercise_17_1(unit_test=False):
@@ -245,7 +243,7 @@ def coding_exercise_17_1(unit_test=False):
             float: The number of milimeters after conversion. Precision is 4 decimal places.
         """
         return round((ounces * 29.57353), 4)
-    
+
     # Test the function
     print(ounces2milimeters(5))
 
@@ -254,7 +252,6 @@ def coding_exercise_17_1(unit_test=False):
         assert ounces2milimeters(5) == 147.8675
         assert ounces2milimeters(10) == 295.735
         assert ounces2milimeters(15) == 443.6025
-
 
 
 if __name__ == "__main__":

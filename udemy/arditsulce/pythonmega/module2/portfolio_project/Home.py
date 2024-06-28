@@ -1,7 +1,12 @@
 import streamlit as st
 import pandas as pd
 
-st.set_page_config(page_title="Uğurcan Uzunkaya", page_icon="🚀", layout="wide", initial_sidebar_state="auto")
+st.set_page_config(
+    page_title="Uğurcan Uzunkaya",
+    page_icon="🚀",
+    layout="wide",
+    initial_sidebar_state="auto",
+)
 
 column1, column2 = st.columns(2)
 
@@ -51,5 +56,3 @@ with column4:
         st.image("images/" + row["image"], width=300)
         st.write(f"[Source Code for {row['title']}]({row['url']})")
         st.write("---")
-
-
