@@ -3,13 +3,14 @@ import pathlib
 import os
 from zipcreator import make_archive
 
+
 def change_dir_to_this_file():
     # getting into the current working directory
     cwd = os.getcwd()
     path_of_this_file = pathlib.Path(__file__).parent
     if cwd != path_of_this_file:
         os.chdir(path_of_this_file)
-    
+
     if not os.path.exists("dest"):
         os.mkdir("dest")
 

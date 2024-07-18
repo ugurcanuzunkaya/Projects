@@ -18,8 +18,7 @@ def inchestometers(feet, inches):
 
 if __name__ == "__main__":
     # Test the function
-    print(inchestometers(5, 8)) # 1.7272
+    print(inchestometers(5, 8))  # 1.7272
 
     assert inchestometers(5, 8) == 1.7272
     assert inchestometers(6, 0) == 1.8288
-
