@@ -1,5 +1,7 @@
 # Introduction to Git Course at DataCamp
 
+- [Git](git.png)
+
 ## Introduction to Version Control with Git
 
 ### Version
