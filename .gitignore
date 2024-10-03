@@ -1,6 +1,9 @@
 # environment variables
 .zshrc
 
+# linux distro files
+*.iso
+
 # local venvs
 University/ENM518/enm518
 
