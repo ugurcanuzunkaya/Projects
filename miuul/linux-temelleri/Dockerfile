@@ -1,31 +1,25 @@
-# I want to create a ubuntu container to test some linux commands
-# I will use ubuntu image as base image
+# Use the official Ubuntu base image
 FROM ubuntu:latest
 
-# I will install some packages
+# Disable prompts from apt
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Update the package repository and install basic utilities
 RUN apt-get update && apt-get install -y \
+    bash \
+    coreutils \
     iputils-ping \
     net-tools \
-    iproute2 \
-    dnsutils \
+    systemd \
+    vim \
     curl \
     wget \
-    vim \
-    nano \
-    git \
+    man \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# I will create a new user
-RUN useradd -ms /bin/bash miuul
+# Set the default shell to bash
+SHELL ["/bin/bash", "-c"]
 
-# I will switch to miuul user
-USER miuul
-
-# I will set the working directory
-WORKDIR /home/miuul
-
-# I will create a new file
-RUN touch test.txt
-
-# I will run a command
-CMD ["echo", "Hello World!"]
+# Start an interactive bash shell when the container runs
+CMD ["bash"]
