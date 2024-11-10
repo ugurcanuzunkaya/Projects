@@ -1,5 +1,7 @@
 # environment variables
 .zshrc
+zuliprc
+*.xlsx
 
 # linux distro files
 *.iso
