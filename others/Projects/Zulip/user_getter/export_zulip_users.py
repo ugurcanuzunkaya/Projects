@@ -18,12 +18,13 @@ client = zulip.Client(config_file=r"zuliprc")
 response = client.get_users()
 
 if response['result'] == 'success':
+    print("Successfully fetched")
     # Extract user data
     users = response['members']
     # Create a DataFrame with selected user information
     df = pd.DataFrame(users, columns=['full_name', 'email'])
     # Write the DataFrame to an Excel file
-    df.to_excel('zulip_users.xlsx', index=False)
-    print("User data has been written to 'zulip_users.xlsx'.")
+    df.to_excel('users.xlsx', index=False)
+    print("User data has been written to 'users.xlsx'.")
 else:
     print(f"Failed to fetch users: {response['msg']}")

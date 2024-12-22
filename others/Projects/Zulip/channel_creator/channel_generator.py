@@ -15,8 +15,7 @@ client = zulip.Client(config_file="zuliprc")
 
 # Define the streams and their descriptions
 streams_to_create = [
-    {"name": "Kanal Adi 1", "description": "Kanal aciklamasi 1"},
-    {"name": "Kanal Adi 2", "description": "Kanal aciklamasi 2"},
+    {"name": "channel1", "description": "description1"},
 ]
 
 # Use the hardcoded group ID

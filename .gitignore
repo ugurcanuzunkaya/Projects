@@ -6,6 +6,13 @@ zuliprc
 # linux distro files
 *.iso
 
+
+# DNN models
+checkpoint
+*.index
+*.meta
+*.data-00000-of-00001
+
 # local venvs
 University/ENM518/enm518
 
