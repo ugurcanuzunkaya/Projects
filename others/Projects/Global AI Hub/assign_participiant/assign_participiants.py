@@ -13,7 +13,7 @@ if script_dir != current_dir:
     os.chdir(script_dir)
 
 # List of mentors
-mentors = ["Mentor 1", "Mentor 2", "Mentor 3"]
+mentors = ["Mentor 1", "Mentor 2", "Mentor 3", "Mentor 4", "Mentor 5"]
 
 # Read the existing Excel file
 df = pd.read_excel('participiants.xlsx')
