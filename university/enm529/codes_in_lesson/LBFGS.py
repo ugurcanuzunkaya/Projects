@@ -17,102 +17,50 @@ def deriv_SVM_i(w,y,x,m,n,i):
         deriv[n]=0
     return deriv
 
-if False:
-    def LBFGS_two_loop(g, P_y, P_s, k, m_tilda):
-        q = np.copy(g)
-        n = len(g)
-        alpha = np.zeros(len(P_s), dtype=float)
-        rho = np.zeros(len(P_s), dtype=float)
-        
-        for i in range(len(P_s) - 1, -1, -1):
-            rho[i] = 1.0 / np.dot(P_y[i], P_s[i])
-            alpha[i] = rho[i] * np.dot(P_s[i], q)
-            q -= alpha[i] * P_y[i]
-        
-        if len(P_s) > 0:
-            gamma = np.dot(P_s[-1], P_y[-1]) / np.dot(P_y[-1], P_y[-1])
-            H_k0 = gamma * np.eye(n)
-        else:
-            H_k0 = np.eye(n)
-        
-        r = np.dot(H_k0, q)
-        
-        for i in range(len(P_s)):
-            beta = rho[i] * np.dot(P_y[i], r)
-            r += P_s[i] * (alpha[i] - beta)
-        
-        return r
+def LBFGS_two_loop(g,P_y,P_s, k, m_tilda):
+    print(f"LBFGS_two_loop: k={k}")
+    q = np.copy(g)
+    n=len(g)
+    alpha = np.zeros(k, dtype=float)
+    i_upper = len(P_s) - 1
+    for i in range(i_upper, -1, -1):
+        alpha[i] = np.dot(P_s[i], q) / np.dot(P_y[i], P_s[i])
+        q = q - alpha[i] * P_y[i]
+    if k>0:
+        B_k = np.dot(np.dot(P_s[i_upper], P_y[i_upper]) / np.dot(P_y[i_upper], P_y[i_upper]), np.identity(n))
+    else:
+        B_k = np.identity(n)
+    d = np.dot(B_k, q)
+    for i in range(i_upper+1):
+        beta = np.dot(P_y[i], d) / np.dot(P_y[i], P_s[i])
+        d = d + P_s[i] * (alpha[i] - beta)
+    return d
 
-    def LBFGS(w_0, y, x, max_iter=100, learning_rate=0.1, m_tilda=10):
-        w = np.copy(w_0)
-        m = len(y)
-        n = len(x[0])
-        P_y = []
-        P_s = []
-        
-        for k in range(max_iter):
-            i = np.random.randint(0, m)
-            g_i = deriv_SVM_i(w, y, x, m, n, i)
-            d_k = LBFGS_two_loop(g_i, P_y, P_s, k, m_tilda)
-            w = w - learning_rate * d_k
-            
-            s_k = learning_rate * d_k
+
+def LBFGS(w_0,y,x):
+    print("LBFGS")
+    w = np.copy(w_0)
+    m = len(y)
+    n = len(x[0])
+    P_y = []
+    P_s = []
+    iter_num=2*m
+    learning_rate = 0.1
+    m_tilda = 10
+    for k in range(iter_num):
+        i = np.random.randint(0, m)
+        g_i = deriv_SVM_i(w, y, x, m, n, i)
+        d_k = LBFGS_two_loop(g_i, P_y, P_s, k, m_tilda)
+        w = w - learning_rate * d_k
+        if np.mod(k, m_tilda) == 0:
+            s_k = d_k * learning_rate * -1
             y_k = deriv_SVM_i(w, y, x, m, n, i) - g_i
-            
-            if len(P_s) == m_tilda:
-                P_s.pop(0)
-                P_y.pop(0)
-            
             P_s.append(s_k)
             P_y.append(y_k)
-        
-        return w
-
-if True:
-    def LBFGS_two_loop(g,P_y,P_s, k, m_tilda):
-        print(f"LBFGS_two_loop: k={k}")
-        q = np.copy(g)
-        n=len(g)
-        alpha = np.zeros(k, dtype=float)
-        i_upper = len(P_s) - 1
-        for i in range(i_upper, -1, -1):
-            alpha[i] = np.dot(P_s[i], q) / np.dot(P_y[i], P_s[i])
-            q = q - alpha[i] * P_y[i]
-        if k>0:
-            B_k = np.dot(np.dot(P_s[i_upper], P_y[i_upper]) / np.dot(P_y[i_upper], P_y[i_upper]), np.identity(n))
-        else:
-            B_k = np.identity(n)
-        d = np.dot(B_k, q)
-        for i in range(i_upper+1):
-            beta = np.dot(P_y[i], d) / np.dot(P_y[i], P_s[i])
-            d = d + P_s[i] * (alpha[i] - beta)
-        return d
-
-
-    def LBFGS(w_0,y,x):
-        print("LBFGS")
-        w = np.copy(w_0)
-        m = len(y)
-        n = len(x[0])
-        P_y = []
-        P_s = []
-        iter_num=2*m
-        learning_rate = 0.1
-        m_tilda = 10
-        for k in range(iter_num):
-            i = np.random.randint(0, m)
-            g_i = deriv_SVM_i(w, y, x, m, n, i)
-            d_k = LBFGS_two_loop(g_i, P_y, P_s, k, m_tilda)
-            w = w - learning_rate * d_k
-            if np.mod(k, m_tilda) == 0:
-                s_k = d_k * learning_rate * -1
-                y_k = deriv_SVM_i(w, y, x, m, n, i) - g_i
-                P_s.append(s_k)
-                P_y.append(y_k)
-                if k > m_tilda:
-                    P_s.pop(0)
-                    P_y.pop(0)
-        return w
+            if k > m_tilda:
+                P_s.pop(0)
+                P_y.pop(0)
+    return w
 
 
 def accuracy_SVM(w,x,y_true):
