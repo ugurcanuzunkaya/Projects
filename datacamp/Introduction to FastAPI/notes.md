@@ -339,3 +339,32 @@ def root(item: Item):
     return {"message": f"We have {name}"}
 
 ```
+
+## Review
+
+- You learned about creating and managing POST operations in FastAPI, focusing on using Pydantic models to handle data. Here's a recap of the key concepts:
+
+- Pydantic Model Creation: You created a Pydantic model named Item with attributes:
+
+- name: a string representing the item's name.
+- quantity: an integer with a default value of 0.
+- expiration: a date with a default value of None.
+- Defining POST Endpoints: You set up an API endpoint to accept POST requests using the Item model. This endpoint processes the input data and returns a message.
+
+- Here's a code snippet from the lesson:
+
+```python
+# Import date
+from datetime import date
+
+# Import BaseModel
+from pydantic import BaseModel
+
+# Define model Item
+class Item(BaseModel):
+    name: str
+    quantity: int = 0
+    expiration: date = None
+```
+
+- Testing the Endpoint: You learned to test the POST endpoint using a curl command to send JSON data and receive a response.
