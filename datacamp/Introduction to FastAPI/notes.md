@@ -340,7 +340,9 @@ def root(item: Item):
 
 ```
 
-## Review
+--------------------
+
+## Review - 1
 
 - You learned about creating and managing POST operations in FastAPI, focusing on using Pydantic models to handle data. Here's a recap of the key concepts:
 
@@ -368,6 +370,8 @@ class Item(BaseModel):
 ```
 
 - Testing the Endpoint: You learned to test the POST endpoint using a curl command to send JSON data and receive a response.
+
+--------------------
 
 ## PUT and DELETE Operations
 
@@ -732,7 +736,7 @@ async def read_results():
 
 ## Exercises - 6
 
-### Asynchronous DELETE operation
+###  Asynchronous DELETE operation
 
 - You've been asked to create an API endpoint that deletes items managed by your API. To accomplish this, create an endpoint `/items` that serves HTTP DELETE operations. Make the endpoint asynchronous, so that your application can continue to serve requests while maintaining any long-running deletion tasks.
 
@@ -784,5 +788,613 @@ async def read_results():
 
 --------------------
 
+## Review - 2
+
+- You learned about supporting PUT and DELETE operations in FastAPI, focusing on asynchronous operations to handle concurrent requests efficiently. Here's a recap of the key points:
+
+- Using async in FastAPI:
+
+- You should use async when all functions within your endpoint can be called with await. This allows your application to handle multiple requests simultaneously, improving performance under high workloads.
+Asynchronous DELETE operation:
+
+- You created an asynchronous endpoint /items for handling HTTP DELETE operations. This ensures that your application can continue processing other requests while performing long-running deletion tasks.
+You validated the existence of item.name in the list items and returned a 404 status code if the item was not found.
+- Code Example:
+
+```python
+@app.delete("/items")
+async def delete_item(item: Item):
+    if item.name not in items:
+        return JSONResponse(status_code=404, content={"message": "Item not found"})
+    # Perform deletion logic here
+```
+
+- This lesson emphasized the importance of using async judiciously to enhance the performance of your FastAPI applications.
+
+--------------------
+
 ## FastAPI Automated Testing
 
+### What is Automated Testing?
+
+- Unit Tests
+  - Focus: Isolated code
+  - Purpose: Validate code function
+  - Scope: Function or method
+  - Environment: Isolated Python ENV
+
+    ```python
+    def test_main():
+        response = main()
+        assert response == {"message": "Hello World"}
+    ```
+
+- System Tests
+  - Focus: Isolated system operations
+  - Purpose: Validate system function
+  - Scope: Endpoint
+  - Environment: Python env with app running
+  
+  ```python
+  def test_read_main():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello World"}
+  ```
+
+### Using TestClient
+
+- FastAPI lets us write automated system tests using the `TestClient` class.
+- `TestClient` simulates a web browser and sends requests to the FastAPI application.
+- We can use the `TestClient` to test the application's endpoints. Validate any aspect of the full HTTP request and response.
+
+- Example:
+
+```python
+from fastapi.testclient import TestClient
+from .main import app
+
+client = TestClient(app)
+
+def test_main():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Hello World"}
+```
+
+### Testing Error or Failure Responses
+
+- FastAPI system tests let us test error or failure responses just like success responses, by validating the HTTTP status code and response body.
+
+- App
+
+```python
+app = FastAPI()
+
+@app.delete("/items")
+def delete_item(item: Item):
+    if item.name not in items:
+        raise HTTPException(status_code=404, detail="Item not found")
+    else:
+        delete_item_in_database(item)
+        return {}
+```
+
+- Test
+
+```python
+def test_delete_item_not_found():
+    response = client.delete("/items", json={"name": "rock"})
+    assert response.status_code == 404
+    json = response.json()
+    assert response.json() == {"detail": "Item not found"}
+```
+
+--------------------
+
+## Exercises - 7
+
+###  System test
+
+- You've built your FastAPI application and added unit tests to verify code functionality. Writing a system test for an API endpoint will ensure that the endpoint works on the running application.
+
+- Instructions
+  - Review the GET endpoint defined in `main.py`.
+  - Complete the following system test in `system_test.py`
+  - In the terminal, run `pytest`.
+
+  ```python
+    # main.py
+    from fastapi import FastAPI, HTTPException
+    from pydantic import BaseModel
+    from typing import Optional
+
+    # define model Item
+    class Item(BaseModel):
+        name: str
+        quantity: Optional[int] = 0
+
+    app = FastAPI()
+
+    items = {"scissors": Item(name="scissors", quantity=100)}
+
+
+    @app.get("/items")
+    def read(name: str):
+        if name not in items:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return items[name]
+
+    # system_test.py
+    # Import TestClient
+    from fastapi.testclient import ____ # from fastapi.testclient import TestClient
+    from main import app
+
+    # Create test client with application context
+    client = TestClient(____) # client = TestClient(app)
+
+    def test_main():
+        response = client.get("/items?name=scissors")
+        assert response.status_code == 200
+        assert response.json() == {"name": "scissors",
+                                "quantity": ____} # "quantity": 100
+    ```
+
+## Building a JSON CRUD API
+
+### Four Steps in Object Management Lifecycle (CRUD)
+
+[Lifecycle](image.png)
+
+- Lifecycle:
+  - Create: Add a new object
+  - Read: Retrieve an object
+  - Update: Modify an object
+  - Delete: Remove an object
+
+- CRUD operations for HTTP protocol:
+  - POST: Create
+  - GET: Read
+  - PUT: Update
+  - DELETE: Delete
+
+- We can build a JSON CRUD API using FastAPI to manage objects in a database.
+
+### JSON CRUD API Motivation
+
+- Fundamentals
+  - Manage the entire object lifecycle
+  - Understand best practices for HTTP API operations
+  - Design our own data management APIs
+
+- Oppurtunities
+  - Business logic for more complex data operations
+  - High throughput and low latency for data pipelines
+  - Machine Learning inference pipelines
+
+- Challenges
+  - Data consistency and integrity
+  - Data security and privacy
+  - Data scalability and performance
+
+### Building a CRUD Module
+
+- We can build a CRUD module to manage objects in a database.
+- The module will have functions to create, read, update, and delete objects.
+- We can use the module to manage objects in the database.
+
+- Example:
+
+```python
+from pydantic import BaseModel
+
+class Review(BaseModel):
+    movie: str
+    num_stars: int
+    text: str
+
+
+class DbReview(BaseModel):
+    movie: str
+    num_stars: int
+    text: str
+    review_id: int
+
+
+# crud.py
+
+def create_review(review: Review) -> DbReview:
+    # Create a new review in the database
+    return db_review
+
+def read_review(review_id: int) -> DbReview:
+    # Read a review from the database
+    return db_review
+
+def update_review(review: DbReview) -> DbReview:
+    # Update a review in the database
+    return db_review
+
+def delete_review(review: DbReview):
+    # Delete a review from the database
+    pass
+```
+
+### POST Endpoint to Create
+
+- Endpoint: `/reviews`
+- Input: `Review`
+- Output: `DbReview`
+
+```python
+@app.post("/reviews", response_model=DbReview)
+def create_review(review: Review):
+    db_review = crud.create_review(review)
+    return db_review
+```
+
+### GET Endpoint to Read
+
+- Endpoint: `/reviews`
+- Input: `?review_id=1234`
+- Output: `DbReview`
+
+```python
+@app.get("/reviews", response_model=DbReview)
+def read_review(review_id: int):
+    db_review = crud.read_review(review_id)
+    return db_review
+```
+
+### PUT Endpoint to Update
+
+- Endpoint: `/reviews`
+- Input: `DbReview`
+- Output: `DbReview`
+
+```python
+@app.put("/reviews", response_model=DbReview)
+def update_review(review: DbReview):
+    db_review = crud.update_review(review)
+    return db_review
+```
+
+### DELETE Endpoint to Delete
+
+- Endpoint: `/reviews`
+- Input: `DbReview`
+- Output: `{}`
+
+```python
+@app.delete("/reviews", response_model=DbReview)
+def delete_review(review: DbReview):
+    crud.delete_review(review)
+    return {}
+```
+
+--------------------
+
+## Exercises - 8
+
+###  Complete JSON CRUD API
+
+- You've been asked to build a JSON CRUD API to manage item names and quantities. To test your API you need to create an item, read it, update it, delete, and verify it's been deleted.
+
+- Instructions
+  - Fill in the missing HTTP operations and status codes in `main.py`
+  - Run the live server from the terminal: `fastapi dev main.py`
+  - Open a new terminal (top-right of terminal) and test your code with the following five commands:
+
+    ```bash
+    curl -X POST \
+    -H 'Content-Type: application/json' \
+    -d '{"name": "rock"}' \
+    http://localhost:8000/items
+
+    curl http://localhost:8000/items?name=rock
+
+    curl -X PUT \
+    -H 'Content-Type: application/json' \
+    -d '{"name": "rock", "quantity": 100}' \
+    http://localhost:8000/items
+
+    curl -X DELETE \
+    -H 'Content-Type: application/json' \
+    -d '{"name": "rock"}' \
+    http://localhost:8000/items
+
+    curl http://localhost:8000/items?name=rock
+    ```
+
+  - Verify that the first four commands return 200 OK, and the final command returns 404 Not Found
+
+    ```python
+    from fastapi import FastAPI, HTTPException
+    from pydantic import BaseModel
+    from typing import Optional
+
+    # define model Item
+    class Item(BaseModel):
+        name: str
+        quantity: Optional[int] = 0
+
+    app = FastAPI()
+
+    items = {}
+
+
+    @app.____("/items") # POST
+    def create(item: Item):
+        name = item.name
+        if name in items:
+            raise HTTPException(status_code=409, detail="Item exists")
+        items[name] = item
+        return {"message": f"Added {name} to items."}
+    
+    @app.____("/items") # GET
+    def read(name: str):
+        if name not in items:
+            raise HTTPException(status_code=____, detail="Item not found") # 404
+        return items[name]  
+    
+    @app.____("/items") # PUT
+    def update(item: Item):
+        name = item.name
+        if name not in items:
+            raise HTTPException(status_code=____, detail="Item not found") # 404
+        items[name] = item
+        return {"message": f"Updated {name}."}
+    
+    @app.delete("/items")
+    def delete(item: Item):
+        name = item.name
+        if name not in items:
+            raise HTTPException(status_code=____, detail="Item not found") # 404
+        del items[name]
+        return {"message": f"Deleted {name}."}
+    ```
+
+--------------------
+
+## Review - 3
+
+- You learned about building and testing a JSON CRUD API using FastAPI, focusing on managing object lifecycles over HTTP. Here are the key points you covered:
+
+- HTTP Operations & CRUD Steps:
+  - POST is used to create objects
+  - GET is used to read objects.
+  - PUT is used to update objects.
+  - DELETE should return an empty response upon successful deletion, as no data remains.
+
+- Building a JSON CRUD API:
+  - You were tasked with creating an API to manage item names and quantities.
+  - The process involved creating, reading, updating, and deleting items to verify functionality.
+
+- Testing the API:
+  - You used curl commands to test the API endpoints:
+
+    ```bash
+    curl -X POST -H 'Content-Type: application/json' -d '{"name": "rock"}' http://localhost:8000/items
+    curl http://localhost:8000/items?name=rock
+    curl -X PUT -H 'Content-Type: application/json' -d '{"name": "rock", "quantity": 100}' http://localhost:8000/items
+    curl -X DELETE -H 'Content-Type: application/json' -d '{"name": "rock"}' http://localhost:8000/items
+    curl http://localhost:8000/items?name=rock
+    ```
+
+  - Verified that the first four commands returned 200 OK, and the last returned 404 Not Found.
+
+## Writing a Manual Functional Test
+
+### What is a Functional Test?
+
+- System Tests
+  - Focus: Isolated system operations
+  - Purpose: Validate system function
+  - Scope: Endpoint
+  - Environment: Python env with app running
+
+    ```python
+    def test_read():
+        response = client.get("/items/1")
+        assert response.status_code == 200
+    ```
+
+- Functional Tests
+  - Focus: Integrated system
+  - Purpose: Validate system overall
+  - Scope: Application
+  - Environment: Python env with app running
+
+    ```python
+    def test_delete_then_read():
+        response = client.delete("/items/1")
+        assert response.status_code == 200
+        response = client.get("/items/1")
+        assert response.status_code == 404
+    ```
+
+- The big difference is that the functional test validates the intraction between two endpoints.
+
+###  Test Workflows
+
+- Test workflows are a critical concept in functional testing.
+- Workflows are specific sequences of application actions. Defining workflows forces us to identify endpoint combinations that should succeed or fail.
+- This lets us build functional tests that the overall applications and not just specific endpoints.
+
+### Functional Test Workflows Examples
+
+- Successful Workflow
+  - Create an item, then read it
+  - Create an item, then update it
+  - Create an item, then delete it
+
+- Failing Workflow
+  - Read without creating an item
+  - Update after deleting an item
+  - Delete without creating an item
+
+###  Functional Test Scripts
+
+- Outside test framework - "Manual tests"
+- Test framework like `pytest`
+
+- Use `requests` library to send HTTP requests
+
+```python
+import requests
+ENDPOINT = "http://localhost:8000/items"
+# Create an item "rock"
+r = requests.post(ENDPOINT, json={"name": "rock"})
+assert r.status_code == 200
+# Get the item "rock"
+r = requests.get(ENDPOINT, params={"name": "rock"})
+assert r.status_code == 200
+```
+
+- Workflows built against known application state
+
+--------------------
+
+## Exercises - 9
+
+###  Functional test
+
+- You've built your FastAPI application and added system tests to verify the functionality of each endpoint. Building a functional test for a core API workflow will ensure that the endpoints work together for the full life cycle of your data.
+
+- We can't run the FastAPI server directly with "Run this file" - see the instructions for how to run the server and test your code from the terminal.
+
+- Instructions
+  - Review the CRUD API defined in `main.py`.
+  - Complete the following functional test workflow in `functional_test.py`.
+  - Run the live server from the terminal: `fastapi dev main.py`.
+  - Open a new terminal (top-right of terminal) with `functional_test.py` open and click "Run this file" to test your code.
+
+  ```python
+    # functional_test.py
+    import requests
+
+    ENDPOINT = "http://localhost:8000/items"
+
+    # Create item "rock" without providing quantity
+    r = requests.post(ENDPOINT, json={"name": "rock"})
+    assert r.status_code == ____ # 200
+    assert r.json()["message"] == "Added rock to items."
+
+    # Verify that item "rock" has quantity 0
+    r = requests.get(ENDPOINT + "?____=____") # name, rock
+    assert r.status_code == 200
+    assert r.json()["quantity"] == 0
+
+    # Update item "rock" with quantity 100
+    r = requests.put(ENDPOINT, json={"name": "rock", "quantity": 100})
+    assert r.status_code == 200
+    assert r.json()["message"] == "Updated rock."
+
+    # Verify that item "rock" has quantity 100
+    r = requests.get(ENDPOINT + "?name=rock")
+    assert r.status_code == 200
+    assert r.json()["quantity"] == ____ # 100
+
+    # Delete item "rock"
+    r = requests.delete(ENDPOINT, json={____: ____}) # name, rock
+    assert r.status_code == 200
+    assert r.json()["message"] == "Deleted rock."
+
+    # Verify that item "rock" does not exist
+    r = requests.get(ENDPOINT + "?name=rock")
+    assert r.status_code == ____ # 404
+
+    print("Test complete.")
+
+    # main.py
+    from fastapi import FastAPI, HTTPException
+    from pydantic import BaseModel
+    from typing import Optional
+
+    # define model Item
+    class Item(BaseModel):
+        name: str
+        quantity: Optional[int] = 0
+
+    app = FastAPI()
+
+    items = {}
+
+
+    @app.post("/items")
+    def create(item: Item):
+        name = item.name
+        if name in items:
+            raise HTTPException(status_code=409, detail="Item exists")
+        items[name] = item
+        return {"message": f"Added {name} to items."}
+    
+    @app.get("/items")
+    def read(name: str):
+        if name not in items:
+            raise HTTPException(status_code=404, detail="Item not found")
+        return items[name]  
+    
+    @app.put("/items")
+    def update(item: Item):
+        name = item.name
+        if name not in items:
+            raise HTTPException(status_code=404, detail="Item not found")
+        items[name] = item
+        return {"message": f"Updated {name}."}
+    
+    @app.delete("/items")
+    def delete(item: Item):
+        name = item.name
+        if name not in items:
+            raise HTTPException(status_code=404, detail="Item not found")
+        del items[name]
+        return {"message": f"Deleted {name}."}
+    ```
+
+--------------------
+
+##  Wrap Up
+
+###  FastAPI Review
+
+- FastAPI key feautures:
+  - Easy to use
+  - Fast and efficient
+  - Built-in data validation
+  - Automatic API documentation
+  - Support for async operations
+
+- FastAPI use cases:
+  - Building APIs for web applications
+  - Building APIs for machine learning models
+  - Building APIs for data pipelines
+
+- Four Type of HTTP Operations:
+  - POST: Create
+  - GET: Read
+  - PUT: Update
+  - DELETE: Delete
+
+- Building a JSON CRUD API:
+  - Create, read, update, and delete objects
+  - Use Pydantic models for data validation
+  - Use FastAPI to define endpoints
+
+- Using status codes to communicate success and failure:
+  - 200: OK
+  - 201: Created
+  - 404: Not Found
+  - 500: Internal Server Error
+
+- Using `async` for concurrent work:
+  - Use `async` to handle multiple requests
+  - Use `await` to call async functions
+
+- System tests and functional tests:
+  - System tests validate individual endpoints
+  - Functional tests validate workflows across endpoints
+
+- Manual functional tests:
+  - Use `requests` library to send HTTP requests
+  - Validate workflows against known application state
