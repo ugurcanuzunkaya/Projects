@@ -1,65 +1,70 @@
-# Zulip Message Sender Bot
+# Mentor Assignment Tool
 
-This project is a Python bot designed to send a specific message to a specified channel (stream) in a Zulip organization. It can also include notifications such as `@everyone` to alert all members of a stream.
+This project is a Python script designed to assign users to mentors in a systematic way, using data from an Excel file.
 
 ## Prerequisites
 
 1. **Python**: Ensure Python 3.x is installed on your system.
-2. **Zulip Python Library**: Install the Zulip Python bindings using pip:
+2. **Required Libraries**: Install the required Python libraries using pip:
 
    ```bash
-   pip install zulip
+   pip install pandas openpyxl
    ```
 
-3. **Zulip Bot Credentials**:
-   - Log in to your Zulip organization.
-   - Navigate to **Settings** > **Your bots**.
-   - Create a new bot and download the `zuliprc` configuration file.
+3. **Excel File**: Prepare an Excel file named `users.xlsx` with at least the following columns:
+   - `full_name`: Contains the full names of users, mentors, and community leads
+   - `email`: Contains the email addresses of users
 
 ## Usage
 
-1. Clone or download this repository.
-2. Place your `zuliprc` file in the project directory.
-3. Modify the `message_sender.py` script to include your desired message, stream, and topic.
-4. Run the script:
+1. Ensure your `users.xlsx` file is in the same directory as the script.
+2. Run the script:
 
    ```bash
-   python message_sender.py
+   python channel_assigner.py
    ```
 
-## Parameters
+3. The script will generate:
+   - `assigned_users.xlsx`: Excel file with all users assigned to mentors
+   - `mentor_assignments.txt`: Text file with mentor assignments and associated user emails
 
-```python
-# Define the message parameters
-message = {
-    "type": "stream",           # Indicates a channel message
-    "to": "channel_name",       # Replace with the target channel name
-    "topic": "message_topic",   # Replace with the desired topic
-    "content": "@**everyone** Your message content here",  # Replace with your message
-}
-```
+## How It Works
 
-- **`path_to_zuliprc`**: Path to the `zuliprc` file downloaded from your Zulip organization.
-- **`channel_name`**: The name of the stream (channel) where the message will be sent.
-- **`message_topic`**: The topic under which the message will appear.
+The script performs the following operations:
 
-- Notifiers (if needed):
-  - **`@**everyone**`**: Notifies all members of the specified stream.
-  - **`@**username**`**: Notifies a specific user in the stream.
-  - **`@**group**`**: Notifies a specific group in the stream.
-  - **`@**all**`**: Notifies all members of the stream.
+1. **Identification**: Identifies mentors and community leads from the Excel file based on name suffixes:
+   - Identifies mentors by the suffix "(Mentor)"
+   - Identifies community leads by suffixes like "(Community Lead)", "(Community Manager)", or "(Bot)"
 
-- **`Your message content here`**: The content of the message.
+2. **Filtering**: Filters out the mentors and community leads from the list of users to be assigned.
+
+3. **Assignment**:
+   - Randomly shuffles the list of mentors
+   - Assigns each user to a random mentor
+
+4. **Output Generation**:
+   - Saves all users with their assigned mentors to an Excel file
+   - Creates a text file with mentor assignments organized by mentor, including user emails
+
+## Configuration Options
+
+The script identifies different user roles based on name suffixes:
+
+- Mentors are identified by the suffix "(Mentor)"
+- Community leads are identified by suffixes like "(Community Lead)", "(Community Manager)", or "(Bot)"
+
+To modify these identifiers or add new ones, update the condition checks in the script.
 
 ## Notes
 
-- Ensure the Zulip organization or stream permissions allow the use of `@everyone`.
-- Users must have permission to send messages to the specified stream.
+- The script automatically detects and changes to the directory where it's located.
+- Ensure the Excel file format is consistent, with proper column names.
+- The random assignment ensures a fair distribution of users to mentors.
 
 ## References
 
-- [Zulip API Documentation](https://zulip.com/api/)
-- [Python Zulip API GitHub Repository](https://github.com/zulip/python-zulip-api)
+- [Pandas Documentation](https://pandas.pydata.org/docs/)
+- [Python Random Module Documentation](https://docs.python.org/3/library/random.html)
 
 ## License
 

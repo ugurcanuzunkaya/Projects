@@ -14,27 +14,51 @@ if script_dir != current_dir:
 client = zulip.Client(config_file="zuliprc")
 
 # Define the streams and their descriptions
-streams_to_create = [
-    {"name": "channel1", "description": "description1"},
-]
+streams_to_create = []
 
-# Optional group ID
-group_id = None  # Replace with the actual group ID if available, or set to None to skip group operations
+# Define the stream creation options
+single = True  # Set to True to create a single stream
+multiple = False  # Set to True to create multiple streams
 
-group_members = []  # Initialize group members as empty
+if single:
+    # Add a single stream to create with its description
+    stream_name = "channel_name"
+    stream_description = "stream_description"
+    streams_to_create.append({"name": stream_name, "description": stream_description})
+    print(f"Stream '{stream_name}' added to the list.")
 
-# Retrieve group members if a group ID is provided
-if group_id:
-    user_groups = client.get_user_groups()
-    group = next((g for g in user_groups["user_groups"] if g["id"] == group_id), None)
+if multiple:
+    # Define the range of streams to create
+    start_point = 1 # Replace with the desired starting number of streams
+    end_point = 21 # Replace with the desired number of streams
 
-    if not group:
-        print(f"Group with ID {group_id} not found. Skipping group member operations.")
-    else:
-        group_members = group.get("members", [])
-        print(f"Group '{group['name']}' found with {len(group_members)} members.")
+    # Add multiple streams to create with their descriptions
+    for i in range(start_point, end_point):
+        stream_name = f"channel_name-{i:02}"
+        stream_description = f"stream_description"
+        streams_to_create.append({"name": stream_name, "description": stream_description})
+        print(f"Stream '{stream_name}' added to the list.")
 
-# Create streams and optionally subscribe group members
+print(f"Creating {len(streams_to_create)} streams...")
+
+# Find user by full name
+user_full_name = "John Doe"  # Replace with the full name of the user
+users_response = client.get_users()
+user_email = None
+
+if users_response["result"] == "success":
+    for user in users_response["members"]:
+        if user["full_name"] == user_full_name:
+            user_email = user["email"]
+            print(f"Found user: {user_full_name} with email: {user_email}")
+            break
+    
+    if user_email is None:
+        print(f"User with name '{user_full_name}' not found.")
+else:
+    print(f"Failed to retrieve users: {users_response['msg']}")
+
+# Create streams and subscribe the specific user
 for stream in streams_to_create:
     stream_name = stream["name"]
     stream_description = stream["description"]
@@ -67,15 +91,15 @@ for stream in streams_to_create:
         else:
             print(f"Failed to update description for stream '{stream_name}': {update_response['msg']}")
 
-    # Subscribe group members to the stream, if any
-    if group_members:
+    # Subscribe the specific user to the stream
+    if user_email:
         response = client.add_subscriptions(
             streams=[{"name": stream_name}],
-            principals=group_members  # Subscribe all members by their email addresses
+            principals=[user_email]  # Subscribe the specific user by their email
         )
         if response["result"] == "success":
-            print(f"Subscribed group members to stream '{stream_name}'.")
+            print(f"Subscribed {user_full_name} to stream '{stream_name}'.")
         else:
-            print(f"Failed to subscribe group members to stream '{stream_name}': {response['msg']}")
+            print(f"Failed to subscribe {user_full_name} to stream '{stream_name}': {response['msg']}")
     else:
-        print(f"No group members to subscribe to stream '{stream_name}'.")
+        print(f"Cannot subscribe user to stream '{stream_name}' as user was not found.")
