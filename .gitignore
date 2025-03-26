@@ -2,6 +2,7 @@
 .zshrc
 zuliprc
 *.xlsx
+*.txt
 
 # linux distro files
 *.iso
