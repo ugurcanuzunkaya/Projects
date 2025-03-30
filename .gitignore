@@ -4,6 +4,10 @@ zuliprc
 *.xlsx
 *.txt
 
+
+# opt out files
+/others/Projects/Zulip/user_analyzer/analysis_output 
+
 # linux distro files
 *.iso
 
