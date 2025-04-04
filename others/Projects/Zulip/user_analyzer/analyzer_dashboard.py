@@ -295,7 +295,12 @@ def main():
     
     # Create visualizations
     print("Creating visualizations...")
-    image_paths = create_visualizations(sender_stats, hour_activity, output_dir)
+    # Create visualizations directory if it doesn't exist
+    viz_dir = os.path.join(output_dir, 'visualizations')
+    os.makedirs(viz_dir, exist_ok=True)
+    
+    # Update visualization paths to use the 'visualizations' subdirectory
+    image_paths = create_visualizations(sender_stats, hour_activity, viz_dir)
     
     # Add additional visualization for top streams
     print("Creating stream activity visualizations...")
@@ -316,9 +321,15 @@ def main():
             plt.xticks(rotation=45, ha='right')
             plt.tight_layout()
     
-    stream_viz_path = os.path.join(output_dir, 'top_streams.png')
+    stream_viz_path = os.path.join(viz_dir, 'top_active_streams.png')
     plt.savefig(stream_viz_path)
     image_paths.append(stream_viz_path)
+    
+    # Create subdirectories for other analyses mentioned in the README
+    os.makedirs(os.path.join(output_dir, 'mentor_analysis'), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, 'community_leader_analysis'), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, 'mentor_stream_analysis'), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, 'mentor_impact_analysis'), exist_ok=True)
     
     # Export results to Excel only (no markdown)
     excel_path = os.path.join(output_dir, "user_performance_analysis.xlsx")
@@ -326,6 +337,12 @@ def main():
     
     print(f"\nAnalysis complete! Results saved to '{output_dir}'")
     print(f"Excel report: {excel_path}")
+    print(f"Visualizations saved to '{viz_dir}'")
+    print("\nTo perform additional analyses, you can run:")
+    print(" - mentor_analyzer.py for mentor-specific analysis")
+    print(" - lead_analyzer.py for community leader analysis")
+    print(" - stream_analyzer.py for stream-specific analysis")
+    print(" - mentor_stream_impact.py for mentor impact analysis")
 
 if __name__ == "__main__":
     main()

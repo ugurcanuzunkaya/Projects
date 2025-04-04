@@ -189,12 +189,33 @@ def main():
             print("Invalid choice. Exiting.")
             return
         
-        # Generate unique filename with timestamp
+        # Generate timestamp for backup/archive filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{filename_prefix}_messages_{timestamp}.xlsx"
+        archive_filename = f"{filename_prefix}_messages_{timestamp}.xlsx"
         
-        # Export to Excel (the path is now handled inside the export function)
-        getter.export_messages_to_excel(messages, filename)
+        # Export to Excel with standardized main filename
+        getter.export_messages_to_excel(messages, "zulip_messages.xlsx")
+        
+        # Also save a timestamped backup copy
+        getter.export_messages_to_excel(messages, archive_filename)
+        
+        # Create analysis_output directory structure if it doesn't exist
+        output_dir = os.path.join(os.path.dirname(__file__), "analysis_output")
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(os.path.join(output_dir, "mentor_analysis"), exist_ok=True)
+        os.makedirs(os.path.join(output_dir, "community_leader_analysis"), exist_ok=True)
+        os.makedirs(os.path.join(output_dir, "mentor_stream_analysis"), exist_ok=True)
+        os.makedirs(os.path.join(output_dir, "mentor_impact_analysis"), exist_ok=True)
+        
+        print("\nData downloaded successfully!")
+        print(f"Main data file: zulip_messages.xlsx")
+        print(f"Backup file: {archive_filename}")
+        print("\nYou can now run analysis scripts:")
+        print("- python analyzer_dashboard.py (for general analysis)")
+        print("- python mentor_analyzer.py (for mentor analysis)")
+        print("- python lead_analyzer.py (for community leader analysis)")
+        print("- python stream_analyzer.py (for stream analysis)")
+        print("- python mentor_stream_impact.py (for mentor impact analysis)")
     
     except Exception as e:
         print(f"An error occurred: {e}")

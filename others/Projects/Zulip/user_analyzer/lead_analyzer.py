@@ -293,7 +293,8 @@ def analyze_community_leaders():
     # Define paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(script_dir, "zulip_messages.xlsx")
-    output_dir = os.path.join(script_dir, "community_leader_analysis")
+    # Update the output directory to match the README structure (analysis_output/community_leader_analysis)
+    output_dir = os.path.join(script_dir, "analysis_output", "community_leader_analysis")
     os.makedirs(output_dir, exist_ok=True)
     
     # Load data

@@ -375,7 +375,8 @@ def analyze_mentor_streams():
     # Define paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(script_dir, "zulip_messages.xlsx")
-    output_dir = os.path.join(script_dir, "mentor_stream_analysis")
+    # Update the output directory to match the README structure (analysis_output/mentor_stream_analysis)
+    output_dir = os.path.join(script_dir, "analysis_output", "mentor_stream_analysis")
     os.makedirs(output_dir, exist_ok=True)
     
     # Define streams to exclude
@@ -442,6 +443,11 @@ def analyze_mentor_streams():
     print(f"Excluded streams: {', '.join(exclude_streams)}")
     print(f"Visualizations directory: {vis_dir}")
     print(f"Excel report: {excel_path}")
+    print("\nTo run other analyses, you can use:")
+    print(" - python analyzer_dashboard.py for general analysis")
+    print(" - python mentor_analyzer.py for mentor-specific analysis")
+    print(" - python lead_analyzer.py for community leader analysis")
+    print(" - python mentor_stream_impact.py for mentor impact analysis")
 
 if __name__ == "__main__":
     analyze_mentor_streams()

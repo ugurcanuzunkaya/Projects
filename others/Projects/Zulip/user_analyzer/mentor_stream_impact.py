@@ -294,7 +294,8 @@ def analyze_mentor_impact():
     # Define paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(script_dir, "zulip_messages.xlsx")
-    output_dir = os.path.join(script_dir, "mentor_impact_analysis")
+    # Update output directory to match the README structure (analysis_output/mentor_impact_analysis)
+    output_dir = os.path.join(script_dir, "analysis_output", "mentor_impact_analysis")
     os.makedirs(output_dir, exist_ok=True)
     
     # Load data

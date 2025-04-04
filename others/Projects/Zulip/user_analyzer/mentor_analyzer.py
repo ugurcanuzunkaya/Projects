@@ -246,7 +246,8 @@ def analyze_mentors():
     # Define paths
     script_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(script_dir, "zulip_messages.xlsx")
-    output_dir = os.path.join(script_dir, "mentor_analysis")
+    # Update output directory to match README structure (analysis_output/mentor_analysis)
+    output_dir = os.path.join(script_dir, "analysis_output", "mentor_analysis")
     os.makedirs(output_dir, exist_ok=True)
     
     # Load data

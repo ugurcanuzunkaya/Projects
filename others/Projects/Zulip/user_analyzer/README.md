@@ -1,20 +1,28 @@
 # Zulip User Analyzer
 
-A toolkit for downloading, analyzing, and visualizing user activity data from Zulip chat platforms.
+A comprehensive toolkit for downloading, analyzing, and visualizing user activity data from Zulip chat platforms.
 
 ## Overview
 
-This project consists of two main components:
+This project provides a set of Python scripts to analyze user activity in a Zulip workspace, with specialized analyses for different user roles (mentors, community leaders) and communication channels (streams).
 
-1. **Message Getter** (`message_getter.py`): Downloads messages from Zulip servers.
-2. **Analyzer Dashboard** (`analyzer_dashboard.py`): Analyzes and visualizes user activity based on the downloaded messages.
+### Key Components
+
+1. **Message Getter** (`message_getter.py`): Downloads messages from Zulip servers to a local Excel file
+2. **Core Analysis** (`analyzer_dashboard.py`): Base functionality for analyzing user activity patterns
+3. **Role-specific Analysis**:
+   - **Mentor Analyzer** (`mentor_analyzer.py`): Analyzes activity of users with "(Mentor)" suffix
+   - **Lead Analyzer** (`lead_analyzer.py`): Analyzes activity of users with "(Community Lead)" or "(Community Manager)" suffix
+4. **Stream Analysis**:
+   - **Stream Analyzer** (`stream_analyzer.py`): Analyzes activity in different Zulip streams
+   - **Mentor Stream Impact** (`mentor_stream_impact.py`): Measures the impact of mentors in different streams
 
 ## Setup Instructions
 
 ### Prerequisites
 
 - Python 3.7+
-- Required packages: `zulip`, `pandas`, `matplotlib`, `seaborn`, `numpy`
+- Required packages: `zulip`, `pandas`, `matplotlib`, `seaborn`, `numpy`, `openpyxl`
 - A Zulip account with API access
 
 ### Installation
@@ -42,59 +50,121 @@ This project consists of two main components:
 
 ### Step 1: Download Messages
 
-Run the message getter script to download messages from your Zulip instance:
+Run the message getter script to download messages from your Zulip workspace:
 
 ```bash
 python message_getter.py
 ```
 
-You'll be prompted to:
+This will create a file named `zulip_messages.xlsx` in the current directory.
 
-1. Choose between getting messages from a specific user or searching all channels
-2. Enter a user's full name or a search query
-3. The script will create an Excel file (`<name>_messages_<timestamp>.xlsx`) containing the downloaded messages
+### Step 2: Run Analysis
 
-### Step 2: Analyze User Activity
-
-After downloading messages, run the analyzer dashboard:
+Run any of the analyzer scripts based on your needs:
 
 ```bash
+# For general user analysis
 python analyzer_dashboard.py
-```
 
-The script expects a file named `zulip_messages.xlsx` in the same directory.
-If your file has a different name, rename it or modify the script to use your filename.
+# For mentor-specific analysis
+python mentor_analyzer.py
+
+# For community leader analysis
+python lead_analyzer.py
+
+# For stream analysis
+python stream_analyzer.py
+
+# For mentor impact analysis
+python mentor_stream_impact.py
+```
 
 ## Analysis Output
 
-The analyzer produces several outputs in the `analysis_output` directory:
+The analyzer produces several outputs in separate directories:
 
-### Excel Report
+### Core Analysis (`analysis_output/`)
 
-A comprehensive Excel file (`user_performance_analysis.xlsx`) with multiple sheets:
+- **Excel Report**: `user_performance_analysis.xlsx` with multiple sheets
+- **Visualizations**:
+  - Message counts by top users
+  - Daily activity rates
+  - Hourly distribution of messages
+  - Day of week activity patterns
+  - Top active streams
 
-- **User Performance**: Overall user activity metrics
-- **Top Streams by User**: What streams each user is most active in
-- **Daily Activity**: Message counts by day and user
-- **Hour Summary**: Message distribution by hour of day
+### Mentor Analysis (`mentor_analysis/`)
 
-### Visualizations
+- Individual visualizations for each mentor
+- Comparative visualizations across mentors
+- Excel report with mentor-specific metrics
 
-- **Message Count**: Bar chart of message counts by top users
-- **Messages per Day**: Daily activity rate by top users
-- **Hour Activity**: Hourly distribution of messages for top users
-- **Day of Week Activity**: Message distribution across weekdays
-- **Top Streams**: Most active streams for top users
+### Community Leader Analysis (`community_leader_analysis/`)
 
-## File Descriptions
+- Individual visualizations for each community leader
+- Comparative visualizations across leaders
+- Excel report with leader-specific metrics
 
-- `message_getter.py`: Tool for downloading messages from Zulip
-- `analyzer_dashboard.py`: Tool for analyzing user activity
-- `zuliprc`: Configuration file with API credentials (you need to create this)
-- `analysis_output/`: Directory containing analysis results
+### Stream Analysis (`mentor_stream_analysis/`)
+
+- Activity metrics for mentor-focused streams
+- Top contributors to each stream
+- Mentor participation rates
+
+### Mentor Impact Analysis (`mentor_impact_analysis/`)
+
+- Influence measurements of mentors in various streams
+- Visualization of mentor impact percentages
+- Excel report with impact metrics
+
+## File Structure
+
+```bash
+user_analyzer/
+├── message_getter.py              # Downloads messages from Zulip
+├── analyzer_dashboard.py          # Core analysis functionality
+├── mentor_analyzer.py             # Analysis for mentors
+├── lead_analyzer.py               # Analysis for community leaders
+├── stream_analyzer.py             # Analysis for streams
+├── mentor_stream_impact.py        # Analysis of mentor impact in streams
+├── README.md                      # This documentation file
+├── zuliprc                        # Zulip API credentials (you need to create this)
+├── zulip_messages.xlsx            # Downloaded message data
+└── analysis_output/               # Output directory for analysis results
+      ├── user_performance_analysis.xlsx
+      ├── visualizations/
+      │   ├── message_counts_by_user.png
+      │   ├── daily_activity_rate.png
+      │   ├── hourly_distribution.png
+      │   ├── day_of_week_activity.png
+      │   └── top_active_streams.png
+      ├── mentor_analysis/
+         ├── mentor1_analysis.xlsx
+         ├── mentor2_analysis.xlsx
+         └── ...
+      ├── community_leader_analysis/
+         ├── leader1_analysis.xlsx
+         ├── leader2_analysis.xlsx
+         └── ...
+      ├── mentor_stream_analysis/
+         ├── stream1_analysis.xlsx
+         ├── stream2_analysis.xlsx
+         └── ...
+      └── mentor_impact_analysis/
+         ├── impact_analysis.xlsx
+         └── ...
+```
 
 ## Notes
 
 - The time analysis is based on message timestamps in the Zulip database
 - Performance metrics include message count, activity rate, and engagement patterns
 - Visualizations help identify user activity patterns and peak usage times
+- The analysis recognizes user roles based on name suffixes:
+  - Mentors are identified by "(Mentor)" suffix
+  - Community leaders are identified by "(Community Lead)" or "(Community Manager)" suffixes
+- Certain streams can be excluded from analysis by editing the `exclude_streams` list in `stream_analyzer.py`
+
+## License
+
+This project is licensed under the MIT License.

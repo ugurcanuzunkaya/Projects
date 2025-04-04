@@ -845,4 +845,3 @@ conversation = [
 - This flexibility ensures that developers can choose the model and service most suitable for their specific use cases, and allows for easy experimentation.
 
 - [smolagents Blog](https://huggingface.co/blog/smolagents) - Introduction to smolagents and code interactions
-
