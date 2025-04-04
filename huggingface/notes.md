@@ -525,3 +525,324 @@ Tool Name: calculator, Description: Multiply two integers., Arguments: a: int, b
 - This allows the model to consider sub-steps in more detail, which in general leads to less errors than trying to generate the final solution directly.
 
 - [Different Types of Learning](image-3.png)
+- This is what's behind models like Deepseek R1 or OpenAI's o1, which have been fine-tuned to "think before answering". These models have been trained to always include specific thinking sections (enclosed between `<think>` and `</think>` special tokens). This is not just a prompting technique like ReAct, but a training method where the model learns to generate these sections after analyzing thousands of examples that show what we expect it to do.
+
+### Actions: Enabling the Agent to Engage with Its Environment
+
+- We’ll cover how actions are represented (using JSON or code), the importance of the stop and parse approach, and introduce different types of agents.
+
+- Actions are the concrete steps an AI agent takes to interact with its environment. Whether it’s browsing the web for information or controlling a physical device, each action is a deliberate operation executed by the agent.
+
+#### Types of Agent Actions
+
+- There are multiple types of Agents that take actions differently.
+
+  | Type of Agent | Description |
+  | --- | --- |
+  | JSON Agent | The Action to take is specified in JSON format. |
+  | Code Agent | The Agent writes a code block that is interpreted externally. |
+  | Function-calling Agent | It is a subcategory of the JSON Agent which has been fine-tuned to generate a new message for each action. |
+
+- Actions themselves can serve many purposes:
+
+  | Type of Action | Description |
+  | --- | --- |
+  | Information Gathering | Performing web searches, querying databases, or retrieving documents. |
+  | Tool Usage | Making API calls, running calculations, and executing code. |
+  | Environment Interaction | Manipulating digital interfaces or controlling physical devices. |
+  | Communication | Engaging with users via chat or collaborating with other agents. |
+
+- One crucial part of an agent is the ability to STOP generating new tokens when an action is complete, and that is true for all formats of Agent: JSON, code, or function-calling. This prevents unintended output and ensures that the agent’s response is clear and precise.
+
+- The LLM only handles text and uses it to describe the action it wants to take and the parameters to supply to the tool.
+
+#### The Stop and Parse Approach
+
+- One key method for implementing actions is the stop and parse approach. This method ensures that the agent’s output is structured and predictable:
+
+1. Generation in a Structured Format:
+    - The agent outputs its intended action in a clear, predetermined format (JSON or code).
+
+2. Halting Further Generation:
+    - Once the action is complete, the agent stops generating additional tokens. This prevents extra or erroneous output.
+
+3. Parsing the Output:
+    - An external parser reads the formatted action, determines which Tool to call, and extracts the required parameters.
+
+- Machine-readable format minimizes errors and enables external tools to accurately process the agent’s command.
+- Note: Function-calling agents operate similarly by structuring each action so that a designated function is invoked with the correct arguments.
+
+#### Code Agents
+
+- An alternative approach is using Code Agents. The idea is: instead of outputting a simple JSON object, a Code Agent generates an executable code block—typically in a high-level language like Python. [Standard LLM Agent vs CodeAct](image-4.png)
+
+- This approach offers several advantages:
+  - Expressiveness: Code can naturally represent complex logic, including loops, conditionals, and nested functions, providing greater flexibility than JSON.
+  - Modularity and Reusability: Generated code can include functions and modules that are reusable across different actions or tasks.
+  - Enhanced Debuggability: With a well-defined programming syntax, code errors are often easier to detect and correct.
+  - Direct Integration: Code Agents can integrate directly with external libraries and APIs, enabling more complex operations such as data processing or real-time decision making.
+
+- We learned that Actions bridge an agent’s internal reasoning and its real-world interactions by executing clear, structured tasks—whether through JSON, code, or function calls.
+
+- This deliberate execution ensures that each action is precise and ready for external processing via the stop and parse approach. In the next section, we will explore Observations to see how agents capture and integrate feedback from their environment.
+
+### Observe: Integrating Feedback to Reflect and Adapt
+
+- Observations are how an Agent perceives the consequences of its actions.
+
+- They provide crucial information that fuels the Agent’s thought process and guides future actions. They are signals from the environment—whether it’s data from an API, error messages, or system logs—that guide the next cycle of thought.
+
+- In the observation phase, the agent:
+  - Collects Feedback: Receives data or confirmation that its action was successful (or not).
+  - Appends Results: Integrates the new information into its existing context, effectively updating its memory.
+  - Adapts its Strategy: Uses this updated context to refine subsequent thoughts and actions.
+
+- This iterative incorporation of feedback ensures the agent remains dynamically aligned with its goals, constantly learning and adjusting based on real-world outcomes.
+- These observations can take many forms, from reading webpage text to monitoring a robot arm’s position. This can be seen like Tool “logs” that provide textual feedback of the Action execution.
+
+  | Type of Observation | Example |
+  | --- | --- |
+  | System Feedback | Error messages, success notifications, status codes |
+  | Data Changes | Database updates, file system modifications, state changes |
+  | Environmental Data | Sensor readings, system metrics, resource usage |
+  | Response Analysis | API responses, query results, computation outputs |
+  | Time-based Events | Deadlines reached, scheduled tasks completed |
+
+- How Are the Results Appended?
+  - After performing an action, the framework follows these steps in order:
+    - Parse the action to identify the function(s) to call and the argument(s) to use.
+    - Execute the action.
+    - Append the result as an Observation.
+
+### Dummy Agent Library
+
+- This course is framework-agnostic because we want to focus on the concepts of AI agents and avoid getting bogged down in the specifics of a particular framework.
+- We will use a dummy agent library and a simple serverless API to access our LLM engine. You probably wouldn’t use these in production, but they will serve as a good starting point for understanding how agents work.
+
+- [Dummy Agent Python File](dummy_agent.py)
+
+- As seen in the LLM section, if we just do decoding, the model will only stop when it predicts an EOS token, and this does not happen here because this is a conversational (chat) model and we didn’t apply the chat template it expects.
+
+- The chat method is the RECOMMENDED method to use in order to ensure a smooth transition between models.
+
+#### Dummy Agent
+
+- This system prompt is a bit more complex than the one we saw earlier, but it already contains:
+
+1. Information about the tools
+2. Cycle instructions (Thought → Action → Observation)
+
+### Let's Create Our First Agent Using smolagents
+
+- smolagents: a library that provides a framework for developing your agents with ease. smolagents is a library that focuses on codeAgent, a kind of agent that performs “Actions” through code blocks, and then “Observes” results by executing the code.
+
+#### The Agent
+
+- This Agent still uses the InferenceClient. You need to focus on adding new tools to the list of tools using the tools parameter of your Agent. Adding tools will give your agent new capabilities
+
+#### The System Prompt
+
+- The agent’s system prompt is stored in a seperate prompts.yaml file. This file contains predefined instructions that guide the agent’s behavior. Storing prompts in a YAML file allows for easy customization and reuse across different agents or use cases.
+- Your Goal is to get familiar with the Space and the Agent. Currently, the agent in the template does not use any tools, so try to provide it with some of the pre-made ones or even make some new tools yourself!
+
+## Bonus Unit 1: Fine-Tuning An LLM for Function Calling
+
+### Introduction
+
+- You’ll learn to fine-tune a Large Language Model (LLM) for function calling.
+- In terms of LLMs, function calling is quickly becoming a must-know technique.
+- The idea is, rather than relying only on prompt-based approaches like we did in Unit 1, function calling trains your model to take actions and interpret observations during the training phase, making your AI more robust.
+
+- What You’ll Learn
+  - Function Calling
+    - How modern LLMs structure their conversations effectively letting them trigger Tools.
+
+  - LoRA (Low-Rank Adaptation)
+    - A lightweight and efficient fine-tuning method that cuts down on computational and storage overhead. LoRA makes training large models faster, cheaper, and easier to deploy.
+
+  - The Thought → Act → Observe Cycle in Function Calling models
+    - A simple but powerful approach for structuring how your model decides when (and how) to call functions, track intermediate steps, and interpret the results from external Tools or APIs.
+
+  - New Special Tokens
+    - We’ll introduce special markers that help the model distinguish between:
+      - Internal “chain-of-thought” reasoning
+      - Outgoing function calls
+      - Responses coming back from external tools
+
+- By the end of this bonus unit, you’ll be able to:
+  - Understand the inner working of APIs when it comes to Tools.
+  - Fine-tune a model using the LoRA technique.
+  - Implement and modify the Thought → Act → Observe cycle to create robust and maintainable Function-calling workflows.
+  - Design and utilize special tokens to seamlessly separate the model’s internal reasoning from its external actions.
+- And you’ll have fine-tuned your own model to do function calling.
+
+### What is Function Calling?
+
+- Function-calling is a way for an LLM to take actions on its environment. It was first introduced in GPT-4, and was later reproduced in other models.
+
+- Just like the tools of an Agent, function-calling gives the model the capacity to take an action on its environment. However, the function calling capacity is learned by the model, and relies less on prompting than other agents techniques.
+
+- During Unit 1, the Agent didn’t learn to use the Tools, we just provided the list, and we relied on the fact that the model was able to generalize on defining a plan using these Tools.
+
+- While here, with function-calling, the Agent is fine-tuned (trained) to use Tools.
+
+- How does the model “learn” to take an action?
+  - In Unit 1, we explored the general workflow of an agent. Once the user has given some tools to the agent and prompted it with a query, the model will cycle through:
+    - Think : What action(s) do I need to take in order to fulfill the objective.
+    - Act : Format the action with the correct parameter and stop the generation.
+    - Observe : Get back the result from the execution.
+
+- In a “typical” conversation with a model through an API, the conversation will alternate between user and assistant messages like this:
+
+```python
+conversation = [
+    {"role": "user", "content": "I need help with my order"},
+    {"role": "assistant", "content": "I'd be happy to help. Could you provide your order number?"},
+    {"role": "user", "content": "It's ORDER-123"},
+]
+```
+
+- Function-calling brings new roles to the conversation!
+  - One new role for an Action
+  - One new role for an Observation
+
+- There’s a new role for function calls? Yes and no, in this case and in a lot of other APIs, the model formats the action to take as an “assistant” message. The chat template will then represent this as special tokens for function-calling.
+  - `[AVAILABLE_TOOLS]` – Start the list of available tools
+  - `[/AVAILABLE_TOOLS]` – End the list of available tools
+  - `[TOOL_CALLS]` – Make a call to a tool (i.e., take an “Action”)
+  - `[TOOL_RESULTS]` – “Observe” the result of the action
+  - `[/TOOL_RESULTS]` – End of the observation (i.e., the model can decode again)
+
+### Let’s Fine-Tune Your Model for Function-Calling
+
+- How do we train our model for function-calling? We need data
+
+- A model training process can be divided into 3 steps:
+  - The model is pre-trained on a large quantity of data. The output of that step is a pre-trained model.For instance, google/gemma-2-2b. It’s a base model and only knows how to predict the next token without strong instruction following capabilities.
+  - To be useful in a chat context, the model then needs to be fine-tuned to follow instructions. In this step, it can be trained by model creators, the open-source community, you, or anyone.
+  - The model can then be aligned to the creator’s preferences.
+- Starting from the pre-trained model would require more training in order to learn instruction following, chat AND function-calling.
+- By starting from the instruction-tuned model, we minimize the amount of information that our model needs to learn.
+
+#### LoRA (Low-Rank Adaptation of Large Language Models)
+
+- LoRA is a popular and lightweight training technique that significantly reduces the number of trainable parameters.
+- It works by inserting a smaller number of new weights as an adapter into the model to train. This makes training with LoRA much faster, memory-efficient, and produces smaller model weights (a few hundred MBs), which are easier to store and share. [LoRA](https://cdn-lfs-us-1.hf.co/repos/45/f4/45f48d5b3577034b76ee728dfe60afca3d0aa70790fda3e706eeb9276d8d5331/1eabf1d1859a8fa93a90428330b2546e051994fb3fb7c9df551094675d6872ed?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27blog_multi-lora-serving_LoRA.gif%3B+filename%3D%22blog_multi-lora-serving_LoRA.gif%22%3B&response-content-type=image%2Fgif&Expires=1743792717&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc0Mzc5MjcxN319LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy11cy0xLmhmLmNvL3JlcG9zLzQ1L2Y0LzQ1ZjQ4ZDViMzU3NzAzNGI3NmVlNzI4ZGZlNjBhZmNhM2QwYWE3MDc5MGZkYTNlNzA2ZWViOTI3NmQ4ZDUzMzEvMWVhYmYxZDE4NTlhOGZhOTNhOTA0MjgzMzBiMjU0NmUwNTE5OTRmYjNmYjdjOWRmNTUxMDk0Njc1ZDY4NzJlZD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPSomcmVzcG9uc2UtY29udGVudC10eXBlPSoifV19&Signature=HaC9m1wjcFyTj7KbTbdGg7Syq1G%7EoI63dA9PiasDCUVPGzEhRPx6ATx4BKPCe5xWLWe35N%7EOPW%7E4Li4Tzo3fwxnvCjJACkY9k4-w%7Em7c%7EbPpj4NTS7VIW4tUHne4C6rosoYLTKywAUofh0PIJ5r2fAi2idfeI7NKHNowecLdCLX-%7EQw6XE49G9LYEnjTO28-zOn2A2JUQRpzcnY5pF8OSgHHf62bp%7EVsmNTfU2aMMNBLIRzgGV-ClgfxPaLaq9XKpblqq8ph6CCBCEvvmtwcoAQv2CucJqyzrfe5kQF7dHUUU6O9Ez9giO8SjKA0fF4XgDazA1ruP1TZOis4qE4-Nw__&Key-Pair-Id=K24J24Z295AEI9)
+
+- LoRA works by adding pairs of rank decomposition matrices to Transformer layers, typically focusing on linear layers. During training, we will “freeze” the rest of the model and will only update the weights of those newly added adapters.
+
+- By doing so, the number of parameters that we need to train drops considerably as we only need to update the adapter’s weights.
+
+- During inference, the input is passed into the adapter and the base model, or these adapter weights can be merged with the base model, resulting in no additional latency overhead.
+
+- LoRA is particularly useful for adapting large language models to specific tasks or domains while keeping resource requirements manageable. This helps reduce the memory required to train a model.
+
+### Conclusion
+
+- You’ve just mastered understanding function-calling and how to fine-tune your model to do function-calling! If we have one piece of advice now, it’s to try to fine-tune different models. The best way to learn is by trying.
+
+## Unit 2: Introduction to Agentic Frameworks
+
+### When to Use an Agentic Framework
+
+- An agentic framework is not always needed when building an application around LLMs. They provide flexibility in the workflow to efficiently solve a specific task, but they’re not always necessary.
+
+- Sometimes, predefined workflows are sufficient to fulfill user requests, and there is no real need for an agentic framework. If the approach to build an agent is simple, like a chain of prompts, using plain code may be enough. The advantage is that the developer will have full control and understanding of their system without abstractions.
+
+- However, when the workflow becomes more complex, such as letting an LLM call functions or using multiple agents, these abstractions start to become helpful.
+
+- Considering these ideas, we can already identify the need for some features:
+
+  - An LLM engine that powers the system.
+  - A list of tools the agent can access.
+  - A parser for extracting tool calls from the LLM output.
+  - A system prompt synced with the parser.
+  - A memory system.
+  - Error logging and retry mechanisms to control LLM mistakes. We’ll explore how these topics are resolved in various frameworks, including smolagents, LlamaIndex, and LangGraph.
+
+- Agentic Frameworks Units
+
+| Framework | Description |
+| --- | --- |
+| smolagents | Agents framework developed by Hugging Face. |
+| Llama-Index | End-to-end tooling to ship a context-augmented AI agent to production |
+| LangGraph | Agents allowing stateful orchestration of agents |
+
+## Unit 2.1: smolagents
+
+### Introduction to smolagents
+
+#### Module Overview
+
+- We’ll explore critical agent types, including code agents designed for software development tasks, tool calling agents for creating modular, function-driven workflows, and retrieval agents that access and synthesize information.
+- Additionally, we’ll cover the orchestration of multiple agents as well as the integration of vision capabilities and web browsing, which unlock new possibilities for dynamic and context-aware applications.
+- Our agents will be able to search for data, execute code, and interact with web pages. You will also learn how to combine multiple agents to create more powerful systems.
+
+- Contents
+  - Why Use smolagents
+    - smolagents is one of the many open-source agent frameworks available for application development. Alternative options include LlamaIndex and LangGraph, which are also covered in other modules in this course. smolagents offers several key features that might make it a great fit for specific use cases, but we should always consider all options when selecting a framework. We’ll explore the advantages and drawbacks of using smolagents, helping you make an informed decision based on your project’s requirements.
+  - CodeAgents
+    - CodeAgents are the primary type of agent in smolagents. Instead of generating JSON or text, these agents produce Python code to perform actions. This module explores their purpose, functionality, and how they work, along with hands-on examples to showcase their capabilities.
+  - ToolCallingAgents
+    - ToolCallingAgents are the second type of agent supported by smolagents. Unlike CodeAgents, which generate Python code, these agents rely on JSON/text blobs that the system must parse and interpret to execute actions. This module covers their functionality, their key differences from CodeAgents, and it provides an example to illustrate their usage.
+  - Retrieval Agents
+    - Retrieval agents allow models access to knowledge bases, making it possible to search, synthesize, and retrieve information from multiple sources. They leverage vector stores for efficient retrieval and implement Retrieval-Augmented Generation (RAG) patterns. These agents are particularly useful for integrating web search with custom knowledge bases while maintaining conversation context through memory systems. This module explores implementation strategies, including fallback mechanisms for robust information retrieval.
+  - Multi-Agent Systems
+    - Orchestrating multiple agents effectively is crucial for building powerful, multi-agent systems. By combining agents with different capabilities—such as a web search agent with a code execution agent—you can create more sophisticated solutions. This module focuses on designing, implementing, and managing multi-agent systems to maximize efficiency and reliability.
+  - Vision and Browser Agents
+    - Vision agents extend traditional agent capabilities by incorporating Vision-Language Models (VLMs), enabling them to process and interpret visual information. This module explores how to design and integrate VLM-powered agents, unlocking advanced functionalities like image-based reasoning, visual data analysis, and multimodal interactions. We will also use vision agents to build a browser agent that can browse the web and extract information from it.
+- Resources
+  - [smolagents Documentation](https://huggingface.co/docs/smolagents) - Official docs for the smolagents library
+  - [Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) - Research paper on agent architectures
+  - [Agent Guidelines](https://huggingface.co/docs/smolagents/tutorials/building_good_agents) - Best practices for building reliable agents
+  - [LangGraph Agents](https://langchain-ai.github.io/langgraph/) - Additional examples of agent implementations
+  - [Function Calling Guide](https://platform.openai.com/docs/guides/function-calling) - Understanding function calling in LLMs
+  - [RAG Best Practices](https://www.pinecone.io/learn/retrieval-augmented-generation/) - Guide to implementing effective RAG
+
+### Why Use smolagents
+
+- smolagents is a simple yet powerful framework for building AI agents. It provides LLMs with the agency to interact with the real world, such as searching or generating images.
+- AI agents are programs that use LLMs to generate ‘thoughts’ based on ‘observations’ to perform ‘actions’.
+
+#### Key Advantages of smolagents
+
+- Simplicity: Minimal code complexity and abstractions, to make the framework easy to understand, adopt and extend
+- Flexible LLM Support: Works with any LLM through integration with Hugging Face tools and external APIs
+- Code-First Approach: First-class support for Code Agents that write their actions directly in code, removing the need for parsing and simplifying tool calling
+- HF Hub Integration: Seamless integration with the Hugging Face Hub, allowing the use of Gradio Spaces as tools
+
+#### When to Use smolagents
+
+- With these advantages in mind, when should we use smolagents over other frameworks?
+- smolagents is ideal when:
+  - You need a lightweight and minimal solution.
+  - You want to experiment quickly without complex configurations.
+  - Your application logic is straightforward.
+
+#### Code vs. JSON Actions
+
+- Unlike other frameworks where agents write actions in JSON, smolagents focuses on tool calls in code, simplifying the execution process. This is because there’s no need to parse the JSON in order to build code that calls the tools: the output can be executed directly. [Standard LLM Agent vs CodeAct](image-6.png)
+
+#### Agent Types in smolagents
+
+- Agents in smolagents operate as multi-step agents.
+- Each MultiStepAgent performs:
+  - One thought
+  - One tool call and execution
+  - In addition to using CodeAgent as the primary type of agent, smolagents also supports ToolCallingAgent, which writes tool calls in JSON.
+- In smolagents, tools are defined using `@tool` decorator wrapping a python function or the Tool class.
+
+#### Model Integration in smolagents
+
+- `smolagents` supports flexible LLM integration, allowing you to use any callable model that meets [certain criteria](https://huggingface.co/docs/smolagents/main/en/reference/models). The framework provides several predefined classes to simplify model connections:
+
+  - [TransformersModel](https://huggingface.co/docs/smolagents/main/en/reference/models#smolagents.TransformersModel): Implements a local `transformers` pipeline for seamless integration.
+  - [HfApiModel](https://huggingface.co/docs/smolagents/main/en/reference/models#smolagents.HfApiModel): Supports [serverless inference](https://huggingface.co/docs/huggingface_hub/main/en/guides/inference) calls through [Hugging Face's infrastructure](https://huggingface.co/docs/api-inference/index), or via a growing number of [third-party inference providers](https://huggingface.co/docs/huggingface_hub/main/en/guides/inference#supported-providers-and-tasks).
+  - [LiteLLMModel](https://huggingface.co/docs/smolagents/main/en/reference/models#smolagents.LiteLLMModel): Leverages [LiteLLM](https://www.litellm.ai/) for lightweight model interactions.
+  - [OpenAIServerModel](https://huggingface.co/docs/smolagents/main/en/reference/models#smolagents.OpenAIServerModel): Connects to any service that offers an OpenAI API interface.
+  - [AzureOpenAIServerModel](https://huggingface.co/docs/smolagents/main/en/reference/models#smolagents.AzureOpenAIServerModel): Supports integration with any Azure OpenAI deployment.
+
+- This flexibility ensures that developers can choose the model and service most suitable for their specific use cases, and allows for easy experimentation.
+
+- [smolagents Blog](https://huggingface.co/blog/smolagents) - Introduction to smolagents and code interactions
+
