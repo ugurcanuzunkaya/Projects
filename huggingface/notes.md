@@ -845,3 +845,228 @@ conversation = [
 - This flexibility ensures that developers can choose the model and service most suitable for their specific use cases, and allows for easy experimentation.
 
 - [smolagents Blog](https://huggingface.co/blog/smolagents) - Introduction to smolagents and code interactions
+
+### Building Agents That Use Code
+
+- Code agents are the default agent type in smolagents. They generate Python tool calls to perform actions, achieving action representations that are efficient, expressive, and accurate. Their streamlined approach reduces the number of required actions, simplifies complex operations, and enables reuse of existing code functions. smolagents provides a lightweight framework for building code agents, implemented in approximately 1,000 lines of code.
+
+#### Why Code Agents?
+
+- In a multi-step agent process, the LLM writes and executes actions, typically involving external tool calls. Traditional approaches use a JSON format to specify tool names and arguments as strings, which the system must parse to determine which tool to execute. However, research shows that tool-calling LLMs work more effectively with code directly.
+
+- Writing actions in code rather than JSON offers several key advantages:
+  - Composability: Easily combine and reuse actions
+  - Object Management: Work directly with complex structures like images
+  - Generality: Express any computationally possible task
+  - Natural for LLMs: High-quality code is already present in LLM training data
+
+#### How Does a Code Agent Work?
+
+- [CodeAgent works](image-7.png)
+- The diagram above illustrates how CodeAgent.run() operates, following the ReAct framework we mentioned in Unit 1. The main abstraction for agents in smolagents is a MultiStepAgent, which serves as the core building block. CodeAgent is a special kind of MultiStepAgent.
+- A CodeAgent performs actions through a cycle of steps, with existing variables and knowledge being incorporated into the agent’s context, which is kept in an execution log:
+  1. The system prompt is stored in a SystemPromptStep, and the user query is logged in a TaskStep.
+  2. Then, the following while loop is executed:
+      1. Method agent.write_memory_to_messages() writes the agent’s logs into a list of LLM-readable chat messages.
+      2. These messages are sent to a Model, which generates a completion.
+      3. The completion is parsed to extract the action, which, in our case, should be a code snippet since we’re working with a CodeAgent.
+      4. The action is executed.
+      5. The results are logged into memory in an ActionStep.
+
+- At the end of each step, if the agent includes any function calls (in agent.step_callback), they are executed.
+
+#### Selecting a Playlist for the Party Using smolagents
+
+- Music is an essential part of a successful party! Alfred needs some help selecting the playlist. Luckily, smolagents has got us covered! We can build an agent capable of searching the web using DuckDuckGo. To give the agent access to this tool, we include it in the tool list when creating the agent.
+
+- [smolagents Playlist Example](building_agents.py)
+
+- When you run this example, the output will display a trace of the workflow steps being executed.
+
+#### Using a Custom Tool to Prepare the Menu
+
+- Now that we have selected a playlist, we need to organize the menu for the guests. Again, Alfred can take advantage of smolagents to do so. Here, we use the @tool decorator to define a custom function that acts as a tool.
+- The agent will run for a few steps until finding the answer. Precising allowed values in the docstring helps direct agent to occasion argument values which exist and limit hallucinations.
+
+#### Using Python Imports Inside the Agent
+
+- Alfred needs to calculate when everything would be ready if he started preparing now, in case they need assistance from other superheroes.
+- smolagents specializes in agents that write and execute Python code snippets, offering sandboxed execution for security. Code execution has strict security measures - imports outside a predefined safe list are blocked by default. However, you can authorize additional imports by passing them as strings in additional_authorized_imports.
+- When creating the agent, we’ll use additional_authorized_imports to allow for importing the datetime module.
+- These examples are just the beginning of what you can do with code agents, and we’re already starting to see their utility for preparing the party.
+- In summary, smolagents specializes in agents that write and execute Python code snippets, offering sandboxed execution for security. It supports both local and API-based language models, making it adaptable to various development environments.
+
+#### Sharing Our Custom Party Preparator Agent to the Hub
+
+- The smolagents library makes this possible by allowing you to share a complete agent with the community and download others for immediate use.
+- What’s also exciting is that shared agents are directly available as Hugging Face Spaces, allowing you to interact with them in real-time.
+- [smolagents Party Preparator](building_agents2.py)
+
+#### Inspecting Our Party Preparator Agent with OpenTelemetry and Langfuse
+
+- As Alfred fine-tunes the Party Preparator Agent, he’s growing weary of debugging its runs. Agents, by nature, are unpredictable and difficult to inspect. But since he aims to build the ultimate Party Preparator Agent and deploy it in production, he needs robust traceability for future monitoring and analysis.
+- Once again, smolagents comes to the rescue! It embraces the OpenTelemetry standard for instrumenting agent runs, allowing seamless inspection and logging. With the help of Langfuse and the SmolagentsInstrumentor, Alfred can easily track and analyze his agent’s behavior.
+- Alfred is ready to initialize the SmolagentsInstrumentor and start tracking his agent’s performance.
+- Alfred is now connected 🔌! The runs from smolagents are being logged in Langfuse, giving him full visibility into the agent’s behavior. With this setup, he’s ready to revisit previous runs and refine his Party Preparator Agent even further.
+- Alfred can now access these logs [here](https://cloud.langfuse.com/project/cm7bq0abj025rad078ak3luwi/traces/995fc019255528e4f48cf6770b0ce27b?timestamp=2025-02-19T10%3A28%3A36.929Z) to review and analyze them.  
+
+Actually, a minor error occured during execution. Can you spot it in the logs? Try to track how the agent handles it and still returns a valid answer. <a href="https://cloud.langfuse.com/project/cm7bq0abj025rad078ak3luwi/traces/995fc019255528e4f48cf6770b0ce27b?timestamp=2025-02-19T10%3A28%3A36.929Z&observation=80ca57ace4f69b52">Here</a> is the direct link to the error if you want to verify your answer. Of course the error has been fixed in the meantime, more details can be found in this <a href="https://cloud.langfuse.com/project/cm7bq0abj025rad078ak3luwi/traces/995fc019255528e4f48cf6770b0ce27b?timestamp=2025-02-19T10%3A28%3A36.929Z&observation=80ca57ace4f69b52">issue</a>.
+
+Meanwhile, the [suggested playlist](https://open.spotify.com/playlist/0gZMMHjuxMrrybQ7wTMTpw) sets the perfect vibe for the party preparations. Cool, right? 🎶  
+
+### Writing actions as code snippets or JSON blobs
+
+- Tool Calling Agents are the second type of agent available in smolagents. Unlike Code Agents that use Python snippets, these agents use the built-in tool-calling capabilities of LLM providers to generate tool calls as JSON structures. This is the standard approach used by OpenAI, Anthropic, and many other providers.
+- While smolagents primarily focuses on CodeAgents since they perform better overall, ToolCallingAgents can be effective for simple systems that don’t require variable handling or complex tool calls.
+
+#### How Do Tool Calling Agents Work?
+
+- Tool Calling Agents follow the same multi-step workflow as Code Agents. The key difference is in how they structure their actions: instead of executable code, they generate JSON objects that specify tool names and arguments. The system then parses these instructions to execute the appropriate tools.
+
+##### Example: Running a Tool Calling Agent
+
+- Let’s revisit the previous example where Alfred started party preparations, but this time we’ll use a ToolCallingAgent to highlight the difference. We’ll build an agent that can search the web using DuckDuckGo, just like in our Code Agent example. The only difference is the agent type - the framework handles everything else.
+- [smolagents Party Preparator ToolCallingAgent](building_agents3.py)
+- The agent generates a structured tool call that the system processes to produce the output, rather than directly executing code like a CodeAgent. Now that we understand both agent types, we can choose the right one for our needs.
+
+### Tools
+
+- In smolagents, tools are treated as functions that an LLM can call within an agent system. To interact with a tool, the LLM needs an interface description with these key components:
+  - Name: What the tool is called
+  - Tool description: What the tool does
+  - Input types and descriptions: What arguments the tool accepts
+  - Output type: What the tool returns
+- For instance, while preparing for a party at Wayne Manor, Alfred needs various tools to gather information - from searching for catering services to finding party theme ideas. Here’s how a simple search tool interface might look:
+  - Name: web_search
+  - Tool description: Searches the web for specific queries
+  - Input: query (string) - The search term to look up
+  - Output: String containing the search results
+- By using these tools, Alfred can make informed decisions and gather all the information needed for planning the perfect party. [How a tool call is managed](https://cdn-lfs.hf.co/datasets/huggingface/documentation-images/445679be1266aa1df3cb0ee708d0737348828e871f3d840685e0ce4ed3feee3a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Agent_ManimCE.gif%3B+filename%3D%22Agent_ManimCE.gif%22%3B&response-content-type=image%2Fgif&Expires=1743967856&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc0Mzk2Nzg1Nn19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5oZi5jby9kYXRhc2V0cy9odWdnaW5nZmFjZS9kb2N1bWVudGF0aW9uLWltYWdlcy80NDU2NzliZTEyNjZhYTFkZjNjYjBlZTcwOGQwNzM3MzQ4ODI4ZTg3MWYzZDg0MDY4NWUwY2U0ZWQzZmVlZTNhP3Jlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249KiZyZXNwb25zZS1jb250ZW50LXR5cGU9KiJ9XX0_&Signature=B0eNi-7ZKQNk5TwQYlWz7ttlNdQaPRKH7gHhj4mDimjv2%7EEIUZ%7EhwsXlo0AyOPy96s6hrTf%7Ekq-6ISWtj1I7Yvj6AEaaXuYtT86vr7f3CpzQI93%7EzY4ajKY0IOGABYacsoDfCpI1py33mFxx5-SmZYH34hA%7E7ZtA5QvzRba9WjBP6t%7EheAyOAiyrtjHenlnjP%7EIzYs1GCfAXNGOFESJ4I0Kh2US0cGuUj7fgjt42B8j8ZrDaWRIt8H%7EAwRrln6z7BytMgKbIOsM0ho94tFo96Mjv2FXHvit7UR4JzQYIup8ZKLttglWhSFPyDewWnGKVZj6nl9-wjxjJiQFteby0fw__&Key-Pair-Id=K3RPWS32NSSJCE)
+
+#### Tool Creation Methods
+
+- In smolagents, tools can be defined in two ways:
+  - Using the @tool decorator for simple function-based tools
+  - Creating a subclass of Tool for more complex functionality
+
+##### The @tool Decorator
+
+- The @tool decorator is the recommended way to define simple tools. Under the hood, smolagents will parse basic information about the function from Python. So if you name your function clearly and write a good docstring, it will be easier for the LLM to use.
+- Using this approach, we define a function with:
+  - A clear and descriptive function name that helps the LLM understand its purpose.
+  - Type hints for both inputs and outputs to ensure proper usage.
+  - A detailed description, including an Args: section where each argument is explicitly described. These descriptions provide valuable context for the LLM, so it’s important to write them carefully.
+
+###### Generating a tool that retrieves the highest-rated catering
+
+- Let’s imagine that Alfred has already decided on the menu for the party, but now he needs help preparing food for such a large number of guests. To do so, he would like to hire a catering service and needs to identify the highest-rated options available. Alfred can leverage a tool to search for the best catering services in his area.
+- [smolagents Catering Tool](building_agents4.py)
+
+##### Defining a Tool as a Python Class
+
+- This approach involves creating a subclass of Tool. For complex tools, we can implement a class instead of a Python function. The class wraps the function with metadata that helps the LLM understand how to use it effectively. In this class, we define:
+  - name: The tool’s name.
+  - description: A description used to populate the agent’s system prompt.
+  - inputs: A dictionary with keys type and description, providing information to help the Python interpreter process inputs.
+  - output_type: Specifies the expected output type.
+  - forward: The method containing the inference logic to execute.
+
+###### Generating a tool to generate ideas about the superhero-themed party
+
+- Alfred’s party at the mansion is a superhero-themed event, but he needs some creative ideas to make it truly special. As a fantastic host, he wants to surprise the guests with a unique theme. To do this, he can use an agent that generates superhero-themed party ideas based on a given category. This way, Alfred can find the perfect party theme to wow his guests.
+
+#### Default Toolbox
+
+- smolagents comes with a set of pre-built tools that can be directly injected into your agent. The default toolbox includes:
+  - PythonInterpreterTool
+  - FinalAnswerTool
+  - UserInputTool
+  - DuckDuckGoSearchTool
+  - GoogleSearchTool
+  - VisitWebpageTool
+
+#### Sharing and Importing Tools
+
+- One of the most powerful features of smolagents is its ability to share custom tools on the Hub and seamlessly integrate tools created by the community. This includes connecting with HF Spaces and LangChain tools, significantly enhancing Alfred’s ability to orchestrate an unforgettable party at Wayne Manor.
+
+##### Sharing a Tool to the Hub
+
+- Sharing your custom tool with the community is easy! Simply upload it to your Hugging Face account using the `push_to_hub()` method.
+
+##### Importing a Tool from the Hub
+
+- You can easily import tools created by other users using the load_tool() function. For example, Alfred might want to generate a promotional image for the party using AI. Instead of building a tool from scratch, he can leverage a predefined one from the community.
+
+##### Importing a Hugging Face Space as a Tool
+
+- You can also import a HF Space as a tool using Tool.from_space(). This opens up possibilities for integrating with thousands of spaces from the community for tasks from image generation to data analysis. The tool will connect with the spaces Gradio backend using the gradio_client, so make sure to install it via pip if you don’t have it already.
+
+##### Importing a LangChain Tool
+
+- You can easily load LangChain tools using the `Tool.from_langchain()` method. Alfred, ever the perfectionist, is preparing for a spectacular superhero night at Wayne Manor while the Waynes are away. To make sure every detail exceeds expectations, he taps into LangChain tools to find top-tier entertainment ideas. By using `Tool.from_langchain()`, Alfred effortlessly adds advanced search functionalities to his smolagent, enabling him to discover exclusive party ideas and services with just a few commands.
+
+##### Importing a tool collection from any MCP server
+
+- smolagents also allows importing tools from the hundreds of MCP servers available on glama.ai or smithery.ai.
+
+### Building Agentic RAG (Retrieval-Augmented Generation) Systems
+
+- Retrieval Augmented Generation (RAG) systems combine the capabilities of data retrieval and generation models to provide context-aware responses. For example, a user’s query is passed to a search engine, and the retrieved results are given to the model along with the query. The model then generates a response based on the query and retrieved information.
+- Agentic RAG (Retrieval-Augmented Generation) extends traditional RAG systems by combining autonomous agents with dynamic knowledge retrieval.
+- While traditional RAG systems use an LLM to answer queries based on retrieved data, agentic RAG enables intelligent control of both retrieval and generation processes, improving efficiency and accuracy.
+- Traditional RAG systems face key limitations, such as relying on a single retrieval step and focusing on direct semantic similarity with the user’s query, which may overlook relevant information.
+- Agentic RAG addresses these issues by allowing the agent to autonomously formulate search queries, critique retrieved results, and conduct multiple retrieval steps for a more tailored and comprehensive output.
+
+#### Basic Retrieval with DuckDuckGo
+
+- Let’s build a simple agent that can search the web using DuckDuckGo. This agent will retrieve information and synthesize responses to answer queries. With Agentic RAG, Alfred’s agent can:
+  - Search for latest superhero party trends
+  - Refine results to include luxury elements
+  - Synthesize information into a complete plan
+- [smolagents RAG Example](building_rag_agents.py)
+- The agent follows this process:
+  - Analyzes the Request: Alfred’s agent identifies the key elements of the query—luxury superhero-themed party planning, with focus on decor, entertainment, and catering.
+  - Performs Retrieval: The agent leverages DuckDuckGo to search for the most relevant and up-to-date information, ensuring it aligns with Alfred’s refined preferences for a luxurious event.
+  - Synthesizes Information: After gathering the results, the agent processes them into a cohesive, actionable plan for Alfred, covering all aspects of the party.
+  - Stores for Future Reference: The agent stores the retrieved information for easy access when planning future events, optimizing efficiency in subsequent tasks.
+
+#### Custom Knowledge Base Tool
+
+- For specialized tasks, a custom knowledge base can be invaluable. Let’s create a tool that queries a vector database of technical documentation or specialized knowledge. Using semantic search, the agent can find the most relevant information for Alfred’s needs.
+- A vector database stores numerical representations (embeddings) of text or other data, created by machine learning models. It enables semantic search by identifying similar meanings in high-dimensional space.
+- This approach combines predefined knowledge with semantic search to provide context-aware solutions for event planning. With specialized knowledge access, Alfred can perfect every detail of the party.
+- In this example, we’ll create a tool that retrieves party planning ideas from a custom knowledge base. We’ll use a BM25 retriever to search the knowledge base and return the top results, and RecursiveCharacterTextSplitter to split the documents into smaller chunks for more efficient search.
+- This enhanced agent can:
+  - First check the documentation for relevant information
+  - Combine insights from the knowledge base
+  - Maintain conversation context in memory
+
+#### Enhanced Retrieval Capabilities
+
+- When building agentic RAG systems, the agent can employ sophisticated strategies like:
+  - Query Reformulation: Instead of using the raw user query, the agent can craft optimized search terms that better match the target documents
+  - Multi-Step Retrieval: The agent can perform multiple searches, using initial results to inform subsequent queries
+  - Source Integration: Information can be combined from multiple sources like web search and local documentation
+  - Result Validation: Retrieved content can be analyzed for relevance and accuracy before being included in responses
+- Effective agentic RAG systems require careful consideration of several key aspects. The agent should select between available tools based on the query type and context. Memory systems help maintain conversation history and avoid repetitive retrievals. Having fallback strategies ensures the system can still provide value even when primary retrieval methods fail. Additionally, implementing validation steps helps ensure the accuracy and relevance of retrieved information.
+
+### Multi-Agent Systems
+
+- Multi-agent systems enable specialized agents to collaborate on complex tasks, improving modularity, scalability, and robustness. Instead of relying on a single agent, tasks are distributed among agents with distinct capabilities.
+- In smolagents, different agents can be combined to generate Python code, call external tools, perform web searches, and more. By orchestrating these agents, we can create powerful workflows.
+- A typical setup might include:
+  - A Manager Agent for task delegation
+  - A Code Interpreter Agent for code execution
+  - A Web Search Agent for information retrieval
+
+- The diagram below illustrates a simple multi-agent architecture where a Manager Agent coordinates a Code Interpreter Tool and a Web Search Agent, which in turn utilizes tools like the DuckDuckGoSearchTool and VisitWebpageTool to gather relevant information. [Diagram Multi-Agent Architecture](image-8.png)
+
+#### Multi-Agent Systems in Action
+
+- A multi-agent system consists of multiple specialized agents working together under the coordination of an Orchestrator Agent. This approach enables complex workflows by distributing tasks among agents with distinct roles.
+- For example, a Multi-Agent RAG system can integrate:
+  - A Web Agent for browsing the internet.
+  - A Retriever Agent for fetching information from knowledge bases.
+  - An Image Generation Agent for producing visuals.
+
+- All of these agents operate under an orchestrator that manages task delegation and interaction.
