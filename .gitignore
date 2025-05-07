@@ -8,6 +8,8 @@ zuliprc
 # opt out files
 /others/Projects/Zulip/user_analyzer/analysis_output/*
 /others/Projects/Global AI Hub/youtube_chat_analyzer/reports/*
+/others/Projects/pdf-to-images/output/*
+/others/Projects/pdf-to-images/src/*.pdf
 
 # linux distro files
 *.iso
